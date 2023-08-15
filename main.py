@@ -2,6 +2,7 @@ import face_recognition
 import os, sys
 import cv2
 import math
+import time
 import numpy as np
 
 print("OpenCV version", cv2.__version__)
@@ -27,14 +28,13 @@ def face_confidence(face_distance, face_match_threshold=0.6):
 class FaceRecognition:
 	face_locations = []
 	face_encodings = []
-	# face_names = []
+	face_names = []
 	known_face_names = []
 	known_face_encodings = []
 	process_current_frame = True
 
 	def __init__(self):
 		self.encode_faces()
-		pass
 
 	def encode_faces(self):
 		for image in os.listdir('faces'):
@@ -49,6 +49,11 @@ class FaceRecognition:
 
 	def run_recognition(self):
 		video_capture = cv2.VideoCapture(0)
+		# used to record the time when we processed last frame
+		prev_frame_time = 0
+		  
+		# used to record the time at which we processed current frame
+		new_frame_time = 0
 
 		if not video_capture.isOpened():
 			sys.exit('Video source not found...')
@@ -57,52 +62,62 @@ class FaceRecognition:
 			ret, frame = video_capture.read()
 
 			if self.process_current_frame:
-				# Resize adn change the frame to RGB
-				small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-				# rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
-				rgb_small_frame = np.ascontiguousarray(small_frame[:, :, ::-1])
+				# Calculating the fps		
+			    new_frame_time = time.time()
+			    fps = 1/(new_frame_time-prev_frame_time)
+			    prev_frame_time = new_frame_time
+			  
+			    # converting the fps into integer
+			    fps = str(int(fps))
+			
+				# Resize and change the frame to RGB
+			    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
+			    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
+				
 				# Find all faces in the current frame
-				self.face_locations = face_recognition.face_locations(rgb_small_frame)
-				self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
 
-				self.face_names = []
-				for face_encoding in self.face_encodings:
-					matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
-					name = "Unknown"
-					confidence = 'Unknown'
+			    self.face_locations = face_recognition.face_locations(rgb_small_frame)
 
-					face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-					best_match_index = np.argmin(face_distances)
+			    self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
+			    self.face_names = []
+			    for face_encoding in self.face_encodings:
+			    	matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
+			    	name = "Unknown"
+			    	confidence = 'Unknown'
 
-					if matches[best_match_index]:
-						name = self.known_face_names[best_match_index]
-						confidence = face_confidence(face_distances[best_match_index])
+			    	face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+			    	best_match_index = np.argmin(face_distances)
 
-					self.face_names.append(f'{name} ({confidence})')
+			    	if matches[best_match_index]:
+			    		name = self.known_face_names[best_match_index]
+			    		confidence = face_confidence(face_distances[best_match_index])
 
-				self.process_current_frame = not self.process_current_frame
+			    	self.face_names.append(f'{name} ({confidence})')
+
+			self.process_current_frame = not self.process_current_frame
 
 
-				# Display annotations
-				for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
-					top *= 4
-					right *= 4
-					bottom *= 4
-					left *= 4
+			# Display annotations
+			for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+				top *= 4
+				right *= 4
+				bottom *= 4
+				left *= 4
 
-					cv2.rectangle(frame, (left,top), (right, bottom), (0,0,255), 2)
-					cv2.rectangle(frame, (left,bottom - 35), (right, bottom), (0,0,255), -1)
-					cv2.putText(frame, name, (left+6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255,255,255), 1)
+				cv2.rectangle(frame, (left,top), (right, bottom), (0,0,255), 2)
+				cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,0,255), -1)
+				cv2.putText(frame, name, (left+6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (255,255,255), 1)
+			cv2.putText(frame, fps, (5, 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0,0,255), 1)
 
-				print("Open the camara...")
-				cv2.imshow('Face Recognition', frame)
+			
+			cv2.imshow('Face Recognition', frame)
 
-				if cv2.waitKey(1) == ord('q'):
-					break
+			if cv2.waitKey(1) == ord('q'):
+				break
 
-			video_capture.release()
-			cv2.destroyAllWindows()
+		video_capture.release()
+		cv2.destroyAllWindows()
 
 
 
