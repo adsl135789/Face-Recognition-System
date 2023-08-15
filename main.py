@@ -4,15 +4,17 @@ import cv2
 import math
 import time
 import numpy as np
+import pickle
+import threading
 
-print("OpenCV version", cv2.__version__)
+# print("OpenCV version", cv2.__version__)
 
-if cv2.cuda.getCudaEnabledDeviceCount() == 0:
-	print("No GPU support available")
-else:
-	print("GPU support available")
-	gpu = cv2.cuda_Gpumat()
-
+# if cv2.cuda.getCudaEnabledDeviceCount() == 0:
+# 	print("No GPU support available")
+# else:
+# 	print("GPU support available")
+# 	gpu = cv2.cuda_Gpumat()
+lock = threading.Lock()
 	
 def face_confidence(face_distance, face_match_threshold=0.6):
 	range = (1.0 - face_match_threshold)
@@ -26,25 +28,61 @@ def face_confidence(face_distance, face_match_threshold=0.6):
 
 
 class FaceRecognition:
-	face_locations = []
-	face_encodings = []
-	face_names = []
-	known_face_names = []
-	known_face_encodings = []
-	process_current_frame = True
-
-	def __init__(self):
+	def __init__(self, tolerance=0.4):
+		self.tolerance = tolerance
+		self.face_locations = []
+		self.face_encodings = []
+		self.face_names = []
+		self.known_face_list = []
+		self.known_face_names = []
+		self.known_face_encodings = []
+		self.process_current_frame = True
+		self.is_running = False
 		self.encode_faces()
 
+	# Read from the pictures directroy 
 	def encode_faces(self):
 		for image in os.listdir('faces'):
 			face_image = face_recognition.load_image_file(f'faces/{image}')
-			face_encoding = face_recognition.face_encodings(face_image)[0]
-
+			face_encoding = face_recognition.face_encodings(face_image, model='small')[0]
 			self.known_face_encodings.append(face_encoding)
 			self.known_face_names.append(image)
 
-		# print(self.known_face_names)
+
+	# Read from the data file
+	def encode_faces1(self):
+		with open("faces.dat", 'rb') as f:
+			self.known_face_list = pickle.load(f)
+		for i in range(len(self.known_face_list)):
+			self.known_face_encodings.append(self.known_face_list[i]["encode"][0])
+			self.known_face_names.append(self.known_face_list[i]["name"])
+
+
+	def recognition(self, rgb_small_frame):
+		# Find all faces in the current frame
+	    self.face_locations = face_recognition.face_locations(rgb_small_frame)
+
+	    self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations, model='small')
+	    self.face_names = []
+	    for face_encoding in self.face_encodings:
+	    	matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, self.tolerance)
+	    	name = "Unknown"
+	    	confidence = 'Unknown'
+
+	    	face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+	    	best_match_index = np.argmin(face_distances)
+
+	    	if matches[best_match_index]:
+	    		name = self.known_face_names[best_match_index]
+	    		# confidence = face_confidence(face_distances[best_match_index])
+	    		self.face_names.append(f'{name}')
+	    	else:
+	    		with lock:
+	    			self.is_running = False
+	    	print(name, self.is_running)
+
+
+
 
 
 	def run_recognition(self):
@@ -59,43 +97,30 @@ class FaceRecognition:
 			sys.exit('Video source not found...')
 
 		while True:
+			time.sleep(0.1)
 			ret, frame = video_capture.read()
 
-			if self.process_current_frame:
-				# Calculating the fps		
-			    new_frame_time = time.time()
-			    fps = 1/(new_frame_time-prev_frame_time)
-			    prev_frame_time = new_frame_time
-			  
-			    # converting the fps into integer
-			    fps = str(int(fps))
-			
+			# Calculating the fps		
+			new_frame_time = time.time()
+			fps = 1/(new_frame_time-prev_frame_time)
+			prev_frame_time = new_frame_time
+		  
+		    # converting the fps into integer
+			fps = str(int(fps))
+			cv2.putText(frame, fps, (8, 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0,0,255), 1)
+			print(self.is_running)
+			if not self.is_running:
 				# Resize and change the frame to RGB
 			    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
 			    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
-				
-				# Find all faces in the current frame
+			    self.is_running = True
+			    p1 = threading.Thread(target=self.recognition, args=(rgb_small_frame,))
+			    p1.start()
+			    print(threading.active_count())
 
-			    self.face_locations = face_recognition.face_locations(rgb_small_frame)
 
-			    self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
-			    self.face_names = []
-			    for face_encoding in self.face_encodings:
-			    	matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
-			    	name = "Unknown"
-			    	confidence = 'Unknown'
 
-			    	face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-			    	best_match_index = np.argmin(face_distances)
-
-			    	if matches[best_match_index]:
-			    		name = self.known_face_names[best_match_index]
-			    		confidence = face_confidence(face_distances[best_match_index])
-
-			    	self.face_names.append(f'{name} ({confidence})')
-
-			self.process_current_frame = not self.process_current_frame
+			# self.process_current_frame = not self.process_current_frame
 
 
 			# Display annotations
@@ -108,13 +133,19 @@ class FaceRecognition:
 				cv2.rectangle(frame, (left,top), (right, bottom), (0,0,255), 2)
 				cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,0,255), -1)
 				cv2.putText(frame, name, (left+6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (255,255,255), 1)
-			cv2.putText(frame, fps, (5, 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0,0,255), 1)
 
 			
 			cv2.imshow('Face Recognition', frame)
 
-			if cv2.waitKey(1) == ord('q'):
+			k = cv2.waitKey(1)
+
+			if k % 256 == 27:
+				# ESC pressed, exit.
+				print("Escape hit, closing...")
 				break
+			elif k%256 == 32:
+				# space pressed, keep running the face recognition system.
+				self.is_running = False
 
 		video_capture.release()
 		cv2.destroyAllWindows()
