@@ -7,15 +7,10 @@ import numpy as np
 import pickle
 import threading
 
-
-# print("OpenCV version", cv2.__version__)
-
-# if cv2.cuda.getCudaEnabledDeviceCount() == 0:
-# 	print("No GPU support available")
-# else:
-# 	print("GPU support available")
-# 	gpu = cv2.cuda_Gpumat()
-lock = threading.Lock()
+script_dir = os.getcwd()
+module_path = os.path.join(script_dir, 'Silent-Face-Anti-Spoofing')
+sys.path.append(module_path)
+from liveness_detection import test
 
 def face_confidence(face_distance, face_match_threshold=0.6):
 	range = (1.0 - face_match_threshold)
@@ -34,11 +29,13 @@ class FaceRecognition:
 		self.face_locations = []
 		self.face_encodings = []
 		self.face_names = []
+		self.real_face = []
 		self.known_face_list = []
 		self.known_face_names = []
 		self.known_face_encodings = []
 		self.process_current_frame = True
 		self.encode_faces()
+
 
 	# Read from the pictures directroy
 	def encode_faces(self):
@@ -53,14 +50,29 @@ class FaceRecognition:
 	def encode_faces1(self):
 		with open("faces.pickle", 'rb') as f:
 			self.known_face_list = pickle.load(f)
-		for i in range(len(self.known_face_list)):
-			self.known_face_encodings.append(self.known_face_list[i]["encode"][0])
-			self.known_face_names.append(self.known_face_list[i]["name"])
+		for know_face in self.known_face_list:
+			self.known_face_encodings.append(self.known_face["encode"][0])
+			self.known_face_names.append(self.known_face["name"])
 
 
 	def recognition(self, rgb_small_frame):
 		# Find all faces in the current frame
 	    self.face_locations = face_recognition.face_locations(rgb_small_frame)
+
+	    # self.real_face = []
+	    # model_dir = os.path.join(os.getcwd(),"Silent-Face-Anti-Spoofing","resources","anti_spoof_models")
+
+	    # for idx, face_location in enumerate(self.face_locations):
+	    # 	top,right,bottom,left = face_location
+	    # 	face_image = rgb_small_frame[top:bottom, left:right]
+
+	    # 	label = test(
+	    # 		image = face_image,
+	    # 		model_dir = model_dir,
+	    # 		device_id = 0
+	    # 		)
+	    # 	self.real_face.append(label)
+
 
 	    self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations, model='small')
 	    self.face_names = []
@@ -75,11 +87,8 @@ class FaceRecognition:
 	    	if matches[best_match_index]:
 	    		name = self.known_face_names[best_match_index]
 	    		confidence = face_confidence(face_distances[best_match_index])
-	    	self.face_names.append(f'{name} ({confidence})')
+	    	self.face_names.append(f'{os.path.splitext(name)[0]} ({confidence})')
 	    	print(name, confidence)
-
-
-
 
 
 	def run_recognition(self):
@@ -96,7 +105,7 @@ class FaceRecognition:
 		if not video_capture.isOpened():
 			sys.exit('Video source not found...')
 
-		n=20
+		n=60
 		frame_count = 0
 
 		while True:
@@ -104,7 +113,7 @@ class FaceRecognition:
 
 			# Calculating the fps
 			new_frame_time = time.time()
-			fps = 1/(new_frame_time-prev_frame_time)
+			fps = 1/(new_frame_time-prev_frame_time) 
 			prev_frame_time = new_frame_time
 
 		    # converting the fps into integer
@@ -120,22 +129,22 @@ class FaceRecognition:
 			    self.recognition(rgb_small_frame)
 			frame_count+=1
 
-
-
-			# self.process_current_frame = not self.process_current_frame
-
-
 			# Display annotations
-			for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+			for (top, right, bottom, left), name  in zip(self.face_locations, self.face_names):
 				top *= 4
 				right *= 4
 				bottom *= 4
 				left *= 4
 
+				# if real == 1:
+				# 	cv2.rectangle(frame, (left,top), (right, bottom), (0,255,0), 2)
+				# 	cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,255,0), -1)
+				# else:
+				# 	cv2.rectangle(frame, (left,top), (right, bottom), (0,0,255), 2)
+				# 	cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,0,255), -1)
 				cv2.rectangle(frame, (left,top), (right, bottom), (0,0,255), 2)
 				cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,0,255), -1)
 				cv2.putText(frame, name, (left+6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (255,255,255), 1)
-
 
 			cv2.imshow('Face Recognition', frame)
 

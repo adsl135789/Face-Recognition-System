@@ -5,15 +5,7 @@ import pickle
 import time
 
 origin_face_list = []
-known_face_list = []
 
-def encode_faces(self):
-	for image in os.listdir('faces'):
-		face_image = face_recognition.load_image_file(f'faces/{image}')
-		face_encoding = face_recognition.face_encodings(face_image, model='large')[0]
-
-		self.known_face_encodings.append(face_encoding)
-		self.known_face_names.append(image)
 
 def take_pic():
 	# take a picture from webcam
@@ -59,22 +51,23 @@ def encoding(pic,encode_model='small'):
 
 	return new_identity
 
-def main():
+def register():
 	global origin_face_list
 	pic = take_pic()
 	new_identity = encoding(pic)
+
 	try:
 		with open('faces.pickle', 'rb') as f:
 			origin_face_list = pickle.load(f)
 	except FileNotFoundError:
 		print("file is not existed.")
+
 	# if new identity has been regisitered, close this program.
 	if new_identity['name'] in [face['name'] for face in origin_face_list]:
 		print("This identity has been existed")
 		sys.exit()
-
 	else:
-		with open('faces.pickle', 'wb') as f:
+		with open('faces.pickle', 'ab') as f:
 			origin_face_list.append(new_identity)
 			pickle.dump(origin_face_list, f)
 			img_name = "faces/{}.jpg".format(new_identity["name"])
@@ -82,5 +75,41 @@ def main():
 			print("{} written!".format(img_name))
 
 
+def remove_identiy():
+	global origin_face_list
+	try:
+		with open('faces.pickle', 'rb') as f:
+			origin_face_list = pickle.load(f)
+	except FileNotFoundError:
+		print("file is not existed.")
+		return
+	remove_name = input("enter the name you want to remove:")
+
+	for face in origin_face_list:
+		try:
+			if face["name"] == remove_name:
+				origin_face_list.remove(face)
+				print(f"{remove_name} has been deleted.")
+		except ValueError:
+			print(f"{remove_name} not fund in the list.")
+			return
+
+	with open('faces.pickle', 'wb') as f:
+			pickle.dump(origin_face_list, f)
+
+	remove_img_name = f"{remove_name}.jpg"
+	remove_img_path = os.getcwd()
+	full_path = os.path.join(remove_img_path, remove_img_name)
+
+	try:
+		os.remove(full_path)
+		print(f"{remove_name}\'s image has been deleted")
+	except FileNotFoundError:
+		print(f"{remove_name}'s image not fund in the list.")
+	except Exception as e:
+		print(f"Error occured : {e}")
+
+
+
 if __name__ == '__main__':
-	main()
+	register()
