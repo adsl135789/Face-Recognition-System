@@ -67,8 +67,9 @@ def register():
 		print("This identity has been existed")
 		sys.exit()
 	else:
-		with open('faces.pickle', 'ab') as f:
+		with open('faces.pickle', 'wb') as f:
 			origin_face_list.append(new_identity)
+			print(origin_face_list)
 			pickle.dump(origin_face_list, f)
 			img_name = "faces/{}.jpg".format(new_identity["name"])
 			cv2.imwrite(img_name, pic)
@@ -83,9 +84,10 @@ def remove_identiy():
 	except FileNotFoundError:
 		print("file is not existed.")
 		return
-	remove_name = input("enter the name you want to remove:")
+	print("all the name in the database:")
 	for face in origin_face_list:
 		print(face["name"])
+	remove_name = input("enter the name you want to remove:")
 
 	for face in origin_face_list:
 		try:
@@ -111,7 +113,6 @@ def remove_identiy():
 		print(f"{remove_name}'s image not fund in the list.")
 	except Exception as e:
 		print(f"Error occured : {e}")
-
 
 
 if __name__ == '__main__':
