@@ -16,7 +16,7 @@ import threading
 # 	print("GPU support available")
 # 	gpu = cv2.cuda_Gpumat()
 lock = threading.Lock()
-	
+
 def face_confidence(face_distance, face_match_threshold=0.6):
 	range = (1.0 - face_match_threshold)
 	linear_val = (1.0 - face_distance) / (range *2.0)
@@ -40,7 +40,7 @@ class FaceRecognition:
 		self.process_current_frame = True
 		self.encode_faces()
 
-	# Read from the pictures directroy 
+	# Read from the pictures directroy
 	def encode_faces(self):
 		for image in os.listdir('faces'):
 			face_image = face_recognition.load_image_file(f'faces/{image}')
@@ -87,11 +87,9 @@ class FaceRecognition:
 
 		#wait for the camera for warm up
 		time.sleep(2.0)
-		
-		Fps = FPS().start()
 		# used to record the time when we processed last frame
 		prev_frame_time = 0
-		  
+
 		# used to record the time at which we processed current frame
 		new_frame_time = 0
 
@@ -104,11 +102,11 @@ class FaceRecognition:
 		while True:
 			ret, frame = video_capture.read()
 
-			# Calculating the fps		
+			# Calculating the fps
 			new_frame_time = time.time()
 			fps = 1/(new_frame_time-prev_frame_time)
 			prev_frame_time = new_frame_time
-		  
+
 		    # converting the fps into integer
 			fps = str(int(fps))
 			cv2.putText(frame, fps, (8, 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0,0,255), 1)
@@ -138,7 +136,7 @@ class FaceRecognition:
 				cv2.rectangle(frame, (left,bottom  ), (right, bottom+25), (0,0,255), -1)
 				cv2.putText(frame, name, (left+6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (255,255,255), 1)
 
-			
+
 			cv2.imshow('Face Recognition', frame)
 
 			k = cv2.waitKey(1)
@@ -156,11 +154,3 @@ class FaceRecognition:
 if __name__ == '__main__':
 	fr = FaceRecognition(0.5)
 	fr.run_recognition()
-
-
-
-
-
-
-
-

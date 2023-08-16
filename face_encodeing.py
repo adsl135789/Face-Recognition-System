@@ -29,13 +29,13 @@ def take_pic():
 			print("Escape hit, closing...")
 			sys.exit()
 		elif k%256 == 32:
-			# SPACE pressed			
+			# SPACE pressed
 			video_capture.release()
 
 			cv2.destroyAllWindows()
 			return pic
 
-			
+
 	video_capture.release()
 	cv2.destroyAllWindows()
 
@@ -43,13 +43,13 @@ def encoding(pic,encode_model='small'):
 	new_identity = {}
 	small_pic = cv2.resize(pic, (0, 0), fx=0.25, fy=0.25)
 	rgb_pic = cv2.cvtColor(small_pic, cv2.COLOR_BGR2RGB)  # change frame to RGB
-	
+
 	# Find all faces in the current frame
 
 	face_locations = face_recognition.face_locations(rgb_pic)
 
 	face_encodings = face_recognition.face_encodings(rgb_pic, face_locations, model=encode_model)
-	
+
 
 
 	new_identity["name"] = input("enter name:")
@@ -60,15 +60,19 @@ def encoding(pic,encode_model='small'):
 	return new_identity
 
 def main():
+	global origin_face_list
 	pic = take_pic()
 	new_identity = encoding(pic)
+	try:
+		with open('faces.pickle', 'rb') as f:
+			origin_face_list = pickle.load(f)
+	except FileNotFoundError:
+		print("file is not existed.")
+	# if new identity has been regisitered, close this program.
+	if new_identity['name'] in [face['name'] for face in origin_face_list]:
+		print("This identity has been existed")
+		sys.exit()
 
-	with open('faces.pickle', 'rb') as f:
-		origin_face_list = pickle.load(f)
-
-	if new_identity['name'] in [origin_face_list[i]['name'] for i in range(len(origin_face_list))]:
-		print("identity existed")
-		main()
 	else:
 		with open('faces.pickle', 'wb') as f:
 			origin_face_list.append(new_identity)
