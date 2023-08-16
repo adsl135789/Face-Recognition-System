@@ -27,7 +27,7 @@ def take_pic():
 		if k%256 == 27:
 			# ESC pressed
 			print("Escape hit, closing...")
-			break
+			sys.exit()
 		elif k%256 == 32:
 			# SPACE pressed			
 			video_capture.release()
@@ -52,9 +52,10 @@ def encoding(pic,encode_model='small'):
 	
 
 
-	new_identity["name"] = "Ian"
-	new_identity["ID"] = "1234"
+	new_identity["name"] = input("enter name:")
+	new_identity["ID"] = input("enter ID:")
 	new_identity["encode"] = face_encodings
+	print(new_identity)
 
 	return new_identity
 
@@ -62,14 +63,14 @@ def main():
 	pic = take_pic()
 	new_identity = encoding(pic)
 
-	with open('faces.dat', 'rb') as f:
+	with open('faces.pickle', 'rb') as f:
 		origin_face_list = pickle.load(f)
 
 	if new_identity['name'] in [origin_face_list[i]['name'] for i in range(len(origin_face_list))]:
 		print("identity existed")
 		main()
 	else:
-		with open('faces.dat', 'wb') as f:
+		with open('faces.pickle', 'wb') as f:
 			origin_face_list.append(new_identity)
 			pickle.dump(origin_face_list, f)
 			img_name = "faces/{}.jpg".format(new_identity["name"])

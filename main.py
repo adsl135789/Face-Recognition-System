@@ -7,6 +7,7 @@ import numpy as np
 import pickle
 import threading
 
+
 # print("OpenCV version", cv2.__version__)
 
 # if cv2.cuda.getCudaEnabledDeviceCount() == 0:
@@ -37,7 +38,6 @@ class FaceRecognition:
 		self.known_face_names = []
 		self.known_face_encodings = []
 		self.process_current_frame = True
-		self.is_running = False
 		self.encode_faces()
 
 	# Read from the pictures directroy 
@@ -51,7 +51,7 @@ class FaceRecognition:
 
 	# Read from the data file
 	def encode_faces1(self):
-		with open("faces.dat", 'rb') as f:
+		with open("faces.pickle", 'rb') as f:
 			self.known_face_list = pickle.load(f)
 		for i in range(len(self.known_face_list)):
 			self.known_face_encodings.append(self.known_face_list[i]["encode"][0])
@@ -74,12 +74,9 @@ class FaceRecognition:
 
 	    	if matches[best_match_index]:
 	    		name = self.known_face_names[best_match_index]
-	    		# confidence = face_confidence(face_distances[best_match_index])
-	    		self.face_names.append(f'{name}')
-	    	else:
-	    		with lock:
-	    			self.is_running = False
-	    	print(name, self.is_running)
+	    		confidence = face_confidence(face_distances[best_match_index])
+	    	self.face_names.append(f'{name} ({confidence})')
+	    	print(name, confidence)
 
 
 
@@ -87,6 +84,11 @@ class FaceRecognition:
 
 	def run_recognition(self):
 		video_capture = cv2.VideoCapture(0)
+
+		#wait for the camera for warm up
+		time.sleep(2.0)
+		
+		Fps = FPS().start()
 		# used to record the time when we processed last frame
 		prev_frame_time = 0
 		  
@@ -96,8 +98,10 @@ class FaceRecognition:
 		if not video_capture.isOpened():
 			sys.exit('Video source not found...')
 
+		n=20
+		frame_count = 0
+
 		while True:
-			time.sleep(0.1)
 			ret, frame = video_capture.read()
 
 			# Calculating the fps		
@@ -108,15 +112,15 @@ class FaceRecognition:
 		    # converting the fps into integer
 			fps = str(int(fps))
 			cv2.putText(frame, fps, (8, 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0,0,255), 1)
-			print(self.is_running)
-			if not self.is_running:
+			if frame_count % n == 0:
 				# Resize and change the frame to RGB
 			    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 			    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
-			    self.is_running = True
-			    p1 = threading.Thread(target=self.recognition, args=(rgb_small_frame,))
-			    p1.start()
-			    print(threading.active_count())
+			    # self.is_running = True
+			    # p1 = threading.Thread(target=self.recognition, args=(rgb_small_frame,))
+			    # p1.start()
+			    self.recognition(rgb_small_frame)
+			frame_count+=1
 
 
 
@@ -143,9 +147,6 @@ class FaceRecognition:
 				# ESC pressed, exit.
 				print("Escape hit, closing...")
 				break
-			elif k%256 == 32:
-				# space pressed, keep running the face recognition system.
-				self.is_running = False
 
 		video_capture.release()
 		cv2.destroyAllWindows()
@@ -153,7 +154,7 @@ class FaceRecognition:
 
 
 if __name__ == '__main__':
-	fr = FaceRecognition()
+	fr = FaceRecognition(0.5)
 	fr.run_recognition()
 
 
