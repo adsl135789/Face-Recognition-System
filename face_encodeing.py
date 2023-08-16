@@ -84,6 +84,8 @@ def remove_identiy():
 		print("file is not existed.")
 		return
 	remove_name = input("enter the name you want to remove:")
+	for face in origin_face_list:
+		print(face["name"])
 
 	for face in origin_face_list:
 		try:
@@ -99,7 +101,8 @@ def remove_identiy():
 
 	remove_img_name = f"{remove_name}.jpg"
 	remove_img_path = os.getcwd()
-	full_path = os.path.join(remove_img_path, remove_img_name)
+	full_path = os.path.join(remove_img_path, "faces", remove_img_name)
+
 
 	try:
 		os.remove(full_path)
@@ -113,3 +116,4 @@ def remove_identiy():
 
 if __name__ == '__main__':
 	register()
+	remove_identiy()
