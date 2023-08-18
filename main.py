@@ -98,7 +98,7 @@ class FaceRecognition:
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
 
-        n = 10
+        n = 30
         frame_count = 0
 
         while True:

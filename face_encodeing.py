@@ -46,6 +46,7 @@ def encoding(pic,encode_model='small'):
 
 	new_identity["name"] = input("enter name:")
 	new_identity["ID"] = input("enter ID:")
+	new_identity["isSupervisior"] = False
 	new_identity["encode"] = face_encodings
 	print(new_identity)
 
