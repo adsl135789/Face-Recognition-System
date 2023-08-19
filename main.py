@@ -6,11 +6,10 @@ import math
 import time
 import numpy as np
 import pickle
-import threading
 
-script_dir = os.getcwd()
-module_path = os.path.join(script_dir, 'Silent-Face-Anti-Spoofing')
-sys.path.append(module_path)
+# script_dir = os.getcwd()
+# module_path = os.path.join(script_dir, 'Silent-Face-Anti-Spoofing')
+# sys.path.append(module_path)
 
 
 def face_confidence(face_distance, face_match_threshold=0.6):
