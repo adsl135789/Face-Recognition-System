@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>318</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <widget class="QWidget" name="center" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>300</width>
+        <height>600</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
+        <widget class="QWidget" name="labelWidget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_1">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Uroob</family>
+              <pointsize>52</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(105, 183, 222);
+font: 52pt &quot;Uroob&quot;;</string>
+            </property>
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Uroob</family>
+              <pointsize>50</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(105, 183, 222);
+font: 50pt &quot;Uroob&quot;;</string>
+            </property>
+            <property name="text">
+             <string>User</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QWidget" name="userWidget" native="true">
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="name_label">
+            <property name="styleSheet">
+             <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
+</string>
+            </property>
+            <property name="text">
+             <string>Name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="name_lineEdit"/>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="id_label">
+            <property name="styleSheet">
+             <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
+</string>
+            </property>
+            <property name="text">
+             <string>ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="id_lineEdit">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignBottom">
+        <widget class="QWidget" name="buttonWidget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QPushButton" name="removeButton">
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	font: 80 22pt &quot;OpenDyslexic&quot;;
+	
+	border-style: outset;
+	background-color: rgb(235, 96, 90);
+	border-width: 2px;
+	border-radius: 10px;
+	border-color: rgba(59, 84, 120, 0);
+	padding: 4px;
+}
+
+QPushButton:hover {
+		
+	background-color: rgb(245, 51, 71);
+		transform: tranlateY(-2px)
+}
+
+QPushButton:pressed{
+	
+	background-color: rgb(69, 69, 69);
+	transfomr: translateY(0px)
+}
+</string>
+            </property>
+            <property name="text">
+             <string>Remove User</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="returnButton">
+            <property name="font">
+             <font>
+              <family>OpenDyslexic</family>
+              <pointsize>22</pointsize>
+              <weight>10</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	font: 80 22pt &quot;OpenDyslexic&quot;;
+	background-color: rgb(104, 140, 183);
+	border-style: outset;
+	border-width: 2px;
+	border-radius: 10px;
+	border-color: rgba(59, 84, 120, 0);
+	padding: 4px;
+}
+
+QPushButton:hover {
+	background-color: rgb(127, 182, 187);
+		transform: tranlateY(-2px)
+}
+
+QPushButton:pressed{
+	
+	background-color: rgb(69, 69, 69);
+	transfomr: translateY(0px)
+}
+</string>
+            </property>
+            <property name="text">
+             <string>Main page</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
