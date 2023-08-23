@@ -121,7 +121,7 @@ class FaceMainWindow:
     ###################### Camera Operation ######################
     def openCamera(self, label):
         if self.video_capture is None:
-            self.video_capture = cv2.VideoCapture(0)  # 摄像头索引，通常是0
+            self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # 摄像头索引，通常是0
 
         if label == self.ui.user_labelWC:
             self.ui.timer_user.start(30)
@@ -349,14 +349,12 @@ class FaceMainWindow:
                 if name == remove_name:
                     df = df.drop(idx)
 
-
             # 將修改後的 DataFrame 寫回 CSV 檔案
             df.to_csv(csv_file_path, index=False)
 
             print("已刪除資料並更新 CSV 檔案:", csv_file_path)
         else:
             print("the csv file is empty.")
-
 
     def removeAll(self):
         with open('faces.pickle', 'w') as f:

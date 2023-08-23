@@ -82,9 +82,7 @@ class FaceRecognition:
             print(name)
         return name
 
-    def run_recognition(self):
-        self.video_capture = cv2.VideoCapture(0)
-        ret, frame = self.video_capture.read()
+    def run_recognition(self, frame):
 
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
         rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
@@ -100,7 +98,7 @@ class FaceRecognition:
             cv2.rectangle(frame, (left, bottom), (right, bottom + 45), (0, 0, 255), -1)
             # cv2.putText(frame, name, (left + 6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
-        cv2.resize(frame,(280,280))
+        cv2.resize(frame,(250,250))
         return frame, self.face_names
 
 

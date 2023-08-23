@@ -73,7 +73,7 @@ class FaceRecognition:
         return name
 
     def run_recognition(self):
-        video_capture = cv2.VideoCapture(0)
+        video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
         # wait for the camera for warm up
         time.sleep(2.0)

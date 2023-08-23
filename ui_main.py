@@ -7,6 +7,7 @@ from PyQt5.QtGui import QImage, QPixmap
 from mainWindow import Ui_MainWindow
 from faceRecognition import FaceRecognition
 
+
 class MainWindow:
     def __init__(self):
         self.main_win = QMainWindow()
@@ -15,7 +16,7 @@ class MainWindow:
 
         # self.video_capture = None
         self.frame = None
-        self.video_capture = cv2.VideoCapture(0)
+        self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
         # set Timer
         self.ui.timer = QTimer(self.main_win)
@@ -31,7 +32,7 @@ class MainWindow:
     def rec(self):
         self.ui.name_content.setText("")
         self.ui.time_content.setText("")
-        capture, names = self.fr.run_recognition()
+        capture, names = self.fr.run_recognition(self.frame)
         rgb_image = cv2.cvtColor(capture, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         image = QImage(rgb_image.data, w, h, ch * w, QImage.Format_RGB888)
@@ -50,13 +51,13 @@ class MainWindow:
         if names:
             for name in names:
                 print(name)
-                name_content += f'{name} '
+                name_content += f'{name} \\ '
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
 
     def openCamera(self):
         if self.video_capture is None:
-            self.video_capture = cv2.VideoCapture(0)  # 摄像头索引，通常是0
+            self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # 摄像头索引，通常是0
         self.ui.timer.start(30)
 
     def update_frame(self):
@@ -80,6 +81,9 @@ class MainWindow:
 
     def close(self):
         self.ui.timer.stop()
+        self.ui.timer_recognition.stop()
+        self.video_capture.release()
+        cv2.destroyAllWindows()
         MainWindow.quit()
 
 
