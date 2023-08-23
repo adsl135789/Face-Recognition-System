@@ -98,7 +98,7 @@ class FaceRecognition:
 
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
             cv2.rectangle(frame, (left, bottom), (right, bottom + 45), (0, 0, 255), -1)
-            cv2.putText(frame, name, (left + 6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+            # cv2.putText(frame, name, (left + 6, bottom + 20), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
         cv2.resize(frame,(280,280))
         return frame, self.face_names

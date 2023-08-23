@@ -78,9 +78,15 @@ class MainWindow:
     def show(self):
         self.main_win.show()
 
+    def close(self):
+        self.ui.timer.stop()
+        MainWindow.quit()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_win = MainWindow()
     main_win.show()
-    sys.exit(app.exec_())
+    if app.exec_() is False:
+        main_win.close()
+        sys.exit(app.exec_())
