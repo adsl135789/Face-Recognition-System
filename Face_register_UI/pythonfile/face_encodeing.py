@@ -46,7 +46,7 @@ def encoding(pic,encode_model='small'):
 
 	new_identity["name"] = input("enter name:")
 	new_identity["ID"] = input("enter ID:")
-	new_identity["isSupervisior"] = False
+	new_identity["isSupervisor"] = False
 	new_identity["encode"] = face_encodings
 	print(new_identity)
 
@@ -96,7 +96,7 @@ def remove_identiy():
 				origin_face_list.remove(face)
 				print(f"{remove_name} has been deleted.")
 		except ValueError:
-			print(f"{remove_name} not fund in the list.")
+			print(f"{remove_name} doesn't find in the list.")
 			return
 
 	with open('faces.pickle', 'wb') as f:
@@ -113,7 +113,7 @@ def remove_identiy():
 	except FileNotFoundError:
 		print(f"{remove_name}'s image not fund in the list.")
 	except Exception as e:
-		print(f"Error occured : {e}")
+		print(f"Error Occured : {e}")
 
 
 if __name__ == '__main__':

@@ -7,10 +7,6 @@ import time
 import numpy as np
 import pickle
 
-# script_dir = os.getcwd()
-# module_path = os.path.join(script_dir, 'Silent-Face-Anti-Spoofing')
-# sys.path.append(module_path)
-
 
 def face_confidence(face_distance, face_match_threshold=0.6):
     rg = (1.0 - face_match_threshold)
@@ -34,48 +30,37 @@ class FaceRecognition:
         self.known_face_names = []
         self.known_face_encodings = []
         self.process_current_frame = True
-        self.encode_faces()
-
-    # Read from the pictures directroy
-    def encode_faces(self):
-        for image in os.listdir('faces'):
-            face_image = face_recognition.load_image_file(f'faces/{image}')
-            face_encoding = face_recognition.face_encodings(face_image, model='small')[0]
-            self.known_face_encodings.append(face_encoding)
-            self.known_face_names.append(image)
 
     # Read from the data file
-    def encode_faces1(self):
-        with open("faces.pickle", 'rb') as f:
-            self.known_face_list = pickle.load(f)
-        for know_face in self.known_face_list:
-            self.known_face_encodings.append(self.known_face["encode"][0])
-            self.known_face_names.append(self.known_face["name"])
+    def encode_faces(self):
+        try:
+            with open("faces.pickle", 'rb') as f:
+                self.known_face_list = pickle.load(f)
+        except Exception as e:
+            print(f"{e} occured")
+
+        for known_face in self.known_face_list:
+            self.known_face_encodings.append(known_face["encode"][0])
+            self.known_face_names.append(known_face["name"])
 
     def recognition(self, rgb_small_frame):
+        self.known_face_names = []
+        self.known_face_encodings = []
+        self.encode_faces()
+        print(f"{self.known_face_names=}")
         # Find all faces in the current frame
         self.face_locations = face_recognition.face_locations(rgb_small_frame)
-
-        # self.real_face = []
-        # model_dir = os.path.join(os.getcwd(),"Silent-Face-Anti-Spoofing","resources","anti_spoof_models")
-
-        # for idx, face_location in enumerate(self.face_locations):
-        # 	top,right,bottom,left = face_location
-        # 	face_image = rgb_small_frame[top:bottom, left:right]
-
-        # 	label = test(
-        # 		image = face_image,
-        # 		model_dir = model_dir,
-        # 		device_id = 0
-        # 		)
-        # 	self.real_face.append(label)
-
         self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations, model='small')
         self.face_names = []
+        name = None
         for face_encoding in self.face_encodings:
-            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, self.tolerance)
             name = "Unknown"
             confidence = 'Unknown'
+            print(f"{self.known_face_encodings=}")
+            if not self.known_face_encodings:
+                return name
+
+            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, self.tolerance)
 
             face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
@@ -85,6 +70,7 @@ class FaceRecognition:
                 confidence = face_confidence(face_distances[best_match_index])
             self.face_names.append(f'{os.path.splitext(name)[0]} ({confidence})')
             print(name, confidence)
+        return name
 
     def run_recognition(self):
         video_capture = cv2.VideoCapture(0)
