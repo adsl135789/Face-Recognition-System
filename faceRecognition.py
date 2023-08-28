@@ -2,6 +2,7 @@ import face_recognition
 import os
 import sys
 import cv2
+import pymysql
 import math
 import time
 import numpy as np
@@ -31,6 +32,7 @@ class FaceRecognition:
         self.face_names = []
         self.real_face = []
         self.known_face_list = []
+        self.known_face_permission = []
         self.known_face_names = []
         self.known_face_encodings = []
         self.process_current_frame = True
@@ -52,23 +54,28 @@ class FaceRecognition:
         for known_face in self.known_face_list:
             self.known_face_encodings.append(known_face["encode"][0])
             self.known_face_names.append(known_face["name"])
+            self.known_face_permission.append(known_face["permission"])
 
-    def recognition(self, rgb_small_frame):
+    def readData(self):
+        self.known_face_permission = []
         self.known_face_names = []
         self.known_face_encodings = []
         self.encode_faces()
+
+    def recognition(self, rgb_small_frame):
+        self.readData()
         print(f"{self.known_face_names=}")
         # Find all faces in the current frame
         self.face_locations = face_recognition.face_locations(rgb_small_frame)
         self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations, model='small')
         self.face_names = []
-        name = None
+        face_data = {}
+        face_data["name"] = None
         for face_encoding in self.face_encodings:
-            name = "Unknown"
-            confidence = 'Unknown'
-            # print(f"{self.known_face_encodings=}")
+            face_data["name"] = "Unknown"
+            face_data["permission"] = []
             if not self.known_face_encodings:
-                return name
+                return face_data
 
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, self.tolerance)
 
@@ -76,17 +83,17 @@ class FaceRecognition:
             best_match_index = np.argmin(face_distances)
 
             if matches[best_match_index]:
-                name = self.known_face_names[best_match_index]
-                confidence = face_confidence(face_distances[best_match_index])
-            self.face_names.append(f'{os.path.splitext(name)[0]}')
-            print(name)
-        return name
+                face_data["name"] = self.known_face_names[best_match_index]
+                face_data["permission"].append(self.known_face_permission[best_match_index])
+            self.face_names.append(face_data)
+            # print(face_data)
+        return self.face_names
 
     def run_recognition(self, frame):
 
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
         rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)  # change frame to RGB
-        name = self.recognition(rgb_small_frame)
+        name, permission = self.recognition(rgb_small_frame)
         # Display annotations
         for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
             top *= 4

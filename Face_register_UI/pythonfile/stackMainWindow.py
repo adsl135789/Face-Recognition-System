@@ -5,6 +5,7 @@ import pickle
 import threading
 import face_recognition
 import configparser
+import platform
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
@@ -16,7 +17,7 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 superCode = config['data']['superCode']
 confirmLimit = config['data']['confirmLimit']
-
+video_idx = int(config["data"]["video_idx"])
 
 class FaceMainWindow:
     def __init__(self):
@@ -54,7 +55,14 @@ class FaceMainWindow:
         self.ui.cf_homeBtn.clicked.connect(self.goHome)
 
         # init video variables
-        self.video_capture = None
+        if platform.system() == "Linux":
+            print("Run on Linux")
+            self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
+        elif platform.system() == "Darwin":
+            print("Run on MacOS")
+            self.video_capture = cv2.VideoCapture(video_idx)
+        else:
+            self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
         self.frame = None
 
         # set Timer
@@ -74,6 +82,7 @@ class FaceMainWindow:
     ###################### Update Each Frame ######################
     def update_frame_user(self):
         if self.video_capture is not None:
+            # print("video is open")
             ret, self.frame = self.video_capture.read()
             if ret:
                 image = cv2.resize(self.frame, (500, 500))
@@ -84,6 +93,8 @@ class FaceMainWindow:
                 pixmap = QPixmap.fromImage(image)
                 label = self.ui.user_labelWC
                 self.update_label(label, pixmap)
+            else:
+                print("failed")
 
     def update_frame_super(self):
         if self.video_capture is not None:
@@ -121,13 +132,21 @@ class FaceMainWindow:
     ###################### Camera Operation ######################
     def openCamera(self, label):
         if self.video_capture is None:
-            self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # 摄像头索引，通常是0
-
+            if platform.system() == "Linux":
+                self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
+            elif platform.system() == "Darwin":
+                self.video_capture = cv2.VideoCapture(video_idx)
+            else:
+                self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
         if label == self.ui.user_labelWC:
+            print("timer start : user video")
             self.ui.timer_user.start(30)
         elif label == self.ui.super_labelWC:
+            print("timer start : supervisor video")
+
             self.ui.timer_super.start(30)
         elif label == self.ui.cf_labelWC:
+            print("timer start : confirm video")
             self.ui.timer_confirm.start(30)
 
     def closeCamera(self):
@@ -156,19 +175,23 @@ class FaceMainWindow:
         if self.frame is not None: # 檢查 self.frame 是否為有效圖像
             small_frame = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
             rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-            detect_name = self.fr.recognition(rgb_small_frame)
-            print(f"{detect_name=}")
-            if detect_name == self.ui.rm_name_lineEdit.text():  # remove own identity
+
+            detect_names = self.fr.recognition(rgb_small_frame)
+            if len(detect_names) > 1:
+                self.open_dialog("Please don't have more than two people in the camara at the same time")
+                self.goConfirm()
+            detect_name = detect_names[0]
+            if detect_name["name"] == self.ui.rm_name_lineEdit.text():  # remove own identity
                 self.remove_identiy()
                 self.goHome()
                 return
-            elif self.isSupervisor(detect_name) is True:  # supervisor remove someone's identity
+            elif self.isSupervisor(detect_name["name"]) is True:  # supervisor remove someone's identity
                 self.remove_identiy()
                 self.goHome()
                 return
-            elif detect_name is None:  # no detect anyone
+            elif detect_name["name"] == "":  # no detect anyone
                 self.open_dialog("Detect Failed. Please Retake the photo.")
-            elif detect_name == 'Unknown':  # the person detected is not registered
+            elif detect_name["name"] == 'Unknown':  # the person detected is not registered
                 self.open_dialog("The detected identity is not in the database.")
             else:  # detect_name != remove_name, and you are not Supervisor,
                 self.open_dialog("You can't remove other user.")
@@ -193,18 +216,23 @@ class FaceMainWindow:
         if self.frame is not None:  # 檢查 self.frame 是否為有效圖像
             small_frame = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
             rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-            detect_name = self.fr.recognition(rgb_small_frame)
-            if self.isSupervisor(detect_name) is True:
-                self.removeAll()
-                self.open_dialog("Remove all of user")
-                self.goHome()
-            else:
-                self.open_dialog("Confirm fail.")
-                self.goHome()
+            detect_names = self.fr.recognition(rgb_small_frame)
+            for detect_name in detect_names:
+                print(f"removeing confrim {detect_name} ")
+                if self.isSupervisor(detect_name["name"]) is True:
+                    self.removeAll()
+                    self.open_dialog("Remove all of user")
+                    self.goHome()
+                else:
+                    self.open_dialog("Confirm fail.")
+                    self.goHome()
 
     ###################### Identity Register ######################
     def user_register(self):
         if self.ui.user_name_lineEdit.text() == "" or self.ui.user_id_label.text() == "":
+            self.open_dialog("You must fill in all input fields.")
+            return
+        if self.ui.user_perm1.isClicked == False and self.ui.user_perm1.isClicked == False:
             self.open_dialog("You must fill in all input fields.")
             return
         new_identity = {}
@@ -215,9 +243,12 @@ class FaceMainWindow:
         face_locations = face_recognition.face_locations(rgb_pic)
         face_encodings = face_recognition.face_encodings(rgb_pic, face_locations)
 
+        permission = [self.ui.user_perm1.isChecked(), self.ui.user_perm2.isChecked()]
+        print(f"user permission to door {permission}")
         new_identity["name"] = self.ui.user_name_lineEdit.text()
         new_identity["ID"] = self.ui.user_id_lineEdit.text()
         new_identity["isSupervisor"] = False
+        new_identity["permission"] = permission
         new_identity["encode"] = face_encodings
 
         self.write_data(new_identity, rgb_pic)
@@ -240,6 +271,7 @@ class FaceMainWindow:
             new_identity["name"] = self.ui.super_name_lineEdit.text()
             new_identity["ID"] = self.ui.super_id_lineEdit.text()
             new_identity["isSupervisor"] = True
+            new_identity["permission"] = [True, True]
         else:
             self.open_dialog("Supervisor code is wrong.")
             self.goHome()
@@ -249,22 +281,24 @@ class FaceMainWindow:
 
     def write_data(self, new_identity, rgb_small_frame):
         # 檢查是否有人註冊第二次
-        if self.frame is not None:
-            detect_name = self.fr.recognition(rgb_small_frame)
-            print(f'{detect_name=}')
-            if detect_name is None:
+        if rgb_small_frame is not None:
+            detect_names = self.fr.recognition(rgb_small_frame)
+            print(f'{detect_names=}')
+            if not detect_names:  # 無偵測到人臉，重拍照
                 self.open_dialog("Detect Failed. Please Retake the photo.")
-                self.goHome()
-                return
-            elif detect_name != "Unknown":
-                self.open_dialog("You cannot register twice using different names.")
-                if new_identity["isSupervisor"] is False:
-                    self.goUser()
+                if not new_identity["isSupervisor"]:
+                    self.openCamera(self.ui.user_labelWC)
                 else:
-                    self.goSupervisor()
+                    self.openCamera(self.ui.super_labelWC)
                 return
+            for detect_name in detect_names:
+                print(f'{detect_name=}')
+                if detect_name["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
+                    self.open_dialog("You cannot register twice using different names.")
+                    self.goHome()
+                    return
         else:
-            print("self.frame is empty")
+            print("rgb_small_frame is empty")
             self.open_dialog("The frame is empty.")
             self.goHome()
             return
@@ -375,6 +409,8 @@ class FaceMainWindow:
     def goUser(self):
         self.ui.user_name_lineEdit.setText("")
         self.ui.user_id_lineEdit.setText("")
+        self.ui.user_perm1.setChecked(False)
+        self.ui.user_perm2.setChecked(False)
         self.ui.mainStack.setCurrentWidget(self.ui.userPage)
         self.openCamera(self.ui.user_labelWC)
 

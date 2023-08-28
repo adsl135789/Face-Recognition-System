@@ -1,6 +1,8 @@
 import sys, os
 import cv2
 import datetime
+import platform
+import pymysql
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
@@ -15,9 +17,16 @@ class MainWindow:
         self.ui.setupUi(self.main_win)
 
         # self.video_capture = None
-        self.frame = None
-        self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.video_idx = 0
+        if platform.system() == "Linux":
+            self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
+        elif platform.system() == "Darwin":
+            self.video_capture = cv2.VideoCapture(self.video_idx)
+        else:
+            self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
 
+
+        ret, self.frame = self.video_capture.read()
         # set Timer
         self.ui.timer = QTimer(self.main_win)
         self.ui.timer.timeout.connect(self.update_frame)
@@ -32,7 +41,7 @@ class MainWindow:
     def rec(self):
         self.ui.name_content.setText("")
         self.ui.time_content.setText("")
-        capture, names = self.fr.run_recognition(self.frame)
+        capture, face_data = self.fr.run_recognition(self.frame)
         rgb_image = cv2.cvtColor(capture, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         image = QImage(rgb_image.data, w, h, ch * w, QImage.Format_RGB888)
@@ -48,16 +57,21 @@ class MainWindow:
         formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
         name_content = ''
 
-        if names:
-            for name in names:
-                print(name)
-                name_content += f'{name} \\ '
+        if face_data['name']:
+            for face in face_data:
+                print(face["name"], face["permission"])
+                name_content += f'{face["name"]} \\ '
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
 
     def openCamera(self):
         if self.video_capture is None:
-            self.video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # 摄像头索引，通常是0
+            if platform.system() == "Linux":
+                self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
+            elif platform.system() == "Darwin":
+                self.video_capture = cv2.VideoCapture(self.video_idx)
+            else:
+                self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
         self.ui.timer.start(30)
 
     def update_frame(self):
@@ -84,7 +98,7 @@ class MainWindow:
         self.ui.timer_recognition.stop()
         self.video_capture.release()
         cv2.destroyAllWindows()
-        MainWindow.quit()
+        app.quit()
 
 
 if __name__ == '__main__':
