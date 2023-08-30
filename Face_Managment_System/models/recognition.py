@@ -2,7 +2,7 @@ import face_recognition
 import numpy as np
 import configparser
 import sys
-from Face_Recognition.models.database_ctrl import Database
+from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
 config.read("data/config.ini")
