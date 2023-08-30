@@ -3,7 +3,7 @@
 sudo apt update
 
 sudo apt install -y mysql-server-8.0
-sudo mysql_secure_installation
+#sudo mysql_secure_installation
 
 
 # check mysql status
@@ -11,8 +11,10 @@ sudo systemctl status mysql
 
 # 設定可以讓外網連線
 sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
-bind-address = 0.0.0.0 # 這個是指誰都可以連線的意思
+#bind-address = 0.0.0.0 # 這個是指誰都可以連線的意思
 sudo systemctl restart mysql #設定完成後要重啟才會生效
+
+sudo apt-get install build-essential cmake qt5-default python3-pyqt5 pyqt5-dev-tools
 
 # 設定防火牆，資料庫慣用的port為3306，22是給ssh登入使用
 sudo apt-get install ufw
