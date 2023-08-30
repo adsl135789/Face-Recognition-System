@@ -1,7 +1,6 @@
 import sys, os
 import cv2
 import pandas as pd
-import pickle
 import threading
 import face_recognition
 import configparser
@@ -11,13 +10,28 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from stack_main import Ui_MainWindow
 from functools import partial
-from recognition import FaceRecognition
+from models.recognition import FaceRecognition
+from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read("data/config.ini")
 superCode = config['data']['superCode']
 confirmLimit = config['data']['confirmLimit']
 video_idx = int(config["data"]["video_idx"])
+csv_file_path = config["path"]["csv_file_path"]
+
+try:
+    db = Database(
+        host=config["database"]["host"],
+        password=config["database"]["password"],
+        user=config["database"]["user"],
+        database=config["database"]["database"]
+    )
+    db.create_table()
+except Exception as e:
+    print(e)
+    sys.exit("Connecting to the database failed!!")
+
 
 class FaceMainWindow:
     def __init__(self):
@@ -167,20 +181,23 @@ class FaceMainWindow:
             self.ui.timer_super.stop()
         elif label == self.ui.cf_labelWC:
             self.ui.timer_confirm.stop()
-        ret, self.frame = self.video_capture.read()
+        if self.video_capture:
+            ret, self.frame = self.video_capture.read()
+        else:
+            self.open_dialog("Error: access to camera failed")
+            self.goHome()
 
     def take_and_confirm(self):
-        self.ui.timer_confirm.stop()
-        ret, self.frame = self.video_capture.read()
-        if self.frame is not None: # 檢查 self.frame 是否為有效圖像
-            small_frame = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
-            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+        self.takePhoto(self.ui.cf_labelWC)
+        if self.frame is not None:  # 檢查 self.frame 是否為有效圖像
+            rgb_small_frame = self.to_rgb(self.frame)
 
             detect_names = self.fr.recognition(rgb_small_frame)
             if len(detect_names) > 1:
                 self.open_dialog("Please don't have more than two people in the camara at the same time")
                 self.goConfirm()
             detect_name = detect_names[0]
+            print(f"removing {detect_name=}")
             if detect_name["name"] == self.ui.rm_name_lineEdit.text():  # remove own identity
                 self.remove_identiy()
                 self.goHome()
@@ -210,15 +227,11 @@ class FaceMainWindow:
             return
 
     def removeAll_confirm(self):
-        self.ui.timer_confirm.stop()
-        if self.video_capture:
-            ret, self.frame = self.video_capture.read()
+        self.takePhoto(self.ui.cf_labelWC)
         if self.frame is not None:  # 檢查 self.frame 是否為有效圖像
-            small_frame = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
-            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            rgb_small_frame = self.to_rgb(self.frame)
             detect_names = self.fr.recognition(rgb_small_frame)
             for detect_name in detect_names:
-                print(f"removeing confrim {detect_name} ")
                 if self.isSupervisor(detect_name["name"]) is True:
                     self.removeAll()
                     self.open_dialog("Remove all of user")
@@ -232,19 +245,18 @@ class FaceMainWindow:
         if self.ui.user_name_lineEdit.text() == "" or self.ui.user_id_label.text() == "":
             self.open_dialog("You must fill in all input fields.")
             return
-        if self.ui.user_perm1.isClicked == False and self.ui.user_perm1.isClicked == False:
+        if not self.ui.user_perm1.isChecked() and not self.ui.user_perm2.isChecked():
             self.open_dialog("You must fill in all input fields.")
             return
         new_identity = {}
-        small_pic = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
-        rgb_pic = cv2.cvtColor(small_pic, cv2.COLOR_BGR2RGB)  # change frame to RGB
+        rgb_pic = self.to_rgb(self.frame)
 
         # Find all faces in the current frame
         face_locations = face_recognition.face_locations(rgb_pic)
         face_encodings = face_recognition.face_encodings(rgb_pic, face_locations)
 
         permission = [self.ui.user_perm1.isChecked(), self.ui.user_perm2.isChecked()]
-        print(f"user permission to door {permission}")
+        # print(f"user permission to door {permission}")
         new_identity["name"] = self.ui.user_name_lineEdit.text()
         new_identity["ID"] = self.ui.user_id_lineEdit.text()
         new_identity["isSupervisor"] = False
@@ -260,8 +272,7 @@ class FaceMainWindow:
             self.open_dialog("You must fill in all input fields.")
             return
         new_identity = {}
-        small_pic = cv2.resize(self.frame, (0, 0), fx=0.25, fy=0.25)
-        rgb_pic = cv2.cvtColor(small_pic, cv2.COLOR_BGR2RGB)  # change frame to RGB
+        rgb_pic = self.to_rgb(self.frame)
 
         # Find all faces in the current frame
         face_locations = face_recognition.face_locations(rgb_pic)
@@ -280,6 +291,9 @@ class FaceMainWindow:
         self.write_data(new_identity, rgb_pic)
 
     def write_data(self, new_identity, rgb_small_frame):
+        # 修正encode的type nparray to list
+        for i in range(len(new_identity['encode'])):
+            new_identity['encode'][i] = new_identity['encode'][i].tolist()
         # 檢查是否有人註冊第二次
         if rgb_small_frame is not None:
             detect_names = self.fr.recognition(rgb_small_frame)
@@ -291,43 +305,31 @@ class FaceMainWindow:
                 else:
                     self.openCamera(self.ui.super_labelWC)
                 return
-            for detect_name in detect_names:
-                print(f'{detect_name=}')
-                if detect_name["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
-                    self.open_dialog("You cannot register twice using different names.")
-                    self.goHome()
-                    return
+            if detect_names == "EMPTY":  # 如果資料庫沒使用者，直接跳去註冊新使用者
+                pass
+            else:
+                for detect_name in detect_names:
+                    if detect_name["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
+                        self.open_dialog("You cannot register twice using different names.")
+                        self.goHome()
+                        return
         else:
             print("rgb_small_frame is empty")
             self.open_dialog("The frame is empty.")
             self.goHome()
             return
 
-        origin_face_list = []
-
-        try:
-            with open('faces.pickle', 'rb') as f:
-                origin_face_list = pickle.load(f)
-        except Exception as e:
-            print("file is not existed or empty.")
-
         # if new identity has been registered, close this program.
-        if new_identity['name'] in [face['name'] for face in origin_face_list]:
-            self.open_dialog("This identity has been existed")
+        if db.read_someone_data(new_identity["name"]):
+            self.open_dialog("This identity has been existed or your name has been registered.")
         else:
-            with open('faces.pickle', 'wb') as f: # 存入pickle檔
-                origin_face_list.append(new_identity)
-                pickle.dump(origin_face_list, f)
-            # img_name = "faces/{}.jpg".format(new_identity["name"])
-            # cv2.imwrite(img_name, cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+            db.insert_data(new_identity['name'], new_identity)
             self.write_csv(new_identity)
             self.open_dialog(f"{new_identity['name']} Registration Completed")
         self.goHome()
 
     def write_csv(self, new_identity):
-        csv_file_path = 'identity.csv'
         new_identity.pop("encode")  # remove the column of "encode"
-        print(f"{new_identity=}")
         df = pd.DataFrame([new_identity])
         if os.path.exists(csv_file_path) and os.path.getsize(csv_file_path) > 0:
             header_flag = False  # 不寫入標題
@@ -344,42 +346,19 @@ class FaceMainWindow:
     ###################### Identity Remove ######################
 
     def remove_identiy(self):
-        # 刪除pickle檔
-        origin_face_list = []
-        with open('faces.pickle', 'rb') as f:
-            origin_face_list = pickle.load(f)
         remove_name = self.ui.rm_name_lineEdit.text()
-        for face in origin_face_list:
-            if face["name"] == remove_name:
-                origin_face_list.remove(face)
-                print(f"{remove_name} has been deleted.")
-                self.open_dialog(f"{remove_name} has been deleted.")
+        print(f"{remove_name} has been deleted.")
+        self.open_dialog(f"{remove_name} has been deleted.")
+        db.delete_data(remove_name)
+        db.read_data()
 
-        with open('faces.pickle', 'wb') as f:
-            print(f"{origin_face_list=}")
-            pickle.dump(origin_face_list, f)
-        # 刪除照片
-        # remove_img_name = f"{remove_name}.jpg"
-        # remove_img_path = os.getcwd()
-        # full_path = os.path.join(remove_img_path, "faces", remove_img_name)
-        # try:
-        #     os.remove(full_path)
-        #     print(f"{remove_name}\'s image has been deleted")
-        # except FileNotFoundError:
-        #     print(f"{remove_name} image not fund in the list.")
-        # except Exception as e:
-        #     print(f"Error Occured : {e}")
-        background_thread = threading.Thread(target=self.write_csv_in_background, args=(remove_name,))
+        background_thread = threading.Thread(target=self.remove_csv_in_background, args=(remove_name,))
         background_thread.start()
 
-    def write_csv_in_background(self, remove_name):
-        csv_file_path = 'identity.csv'
-
+    def remove_csv_in_background(self, remove_name):
         if os.path.exists(csv_file_path) and os.path.getsize(csv_file_path) > 0:
             df = pd.read_csv(csv_file_path)
-            print(f"{remove_name=}")
             for idx, name in enumerate(df['name']):
-                print(f"{idx=} {name=}")
                 if name == remove_name:
                     df = df.drop(idx)
 
@@ -391,19 +370,9 @@ class FaceMainWindow:
             print("the csv file is empty.")
 
     def removeAll(self):
-        with open('faces.pickle', 'w') as f:
+        with open('data/identity.csv', 'w') as f:
             pass
-        with open('identity.csv', 'w') as f:
-            pass
-
-        remove_dir = os.path.join(os.getcwd(),'faces')
-        for filename in os.listdir(remove_dir):
-            file_path = os.path.join(remove_dir, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print('無法刪除 %s. 原因: %s' % (file_path, e))
+        db.delete_all_data()
 
     ###################### Switching Page ######################
     def goUser(self):
@@ -430,47 +399,28 @@ class FaceMainWindow:
         if self.ui.rm_name_lineEdit.text() == "":
             self.open_dialog("You must fill in all input fields.")
             return
-        # Verify if this name exists in the database.
-        try:
-            with open('faces.pickle', 'rb') as f:
-                origin_face_list = pickle.load(f)
-        except FileNotFoundError:
-            self.open_dialog("The database is empty")
-            self.goHome()
-            return
 
-        # if database is empty
-        if not origin_face_list:
+        # check if database is empty
+        if not db.read_data():
             self.open_dialog("The database is empty")
             self.goHome()
             return
 
         remove_name = self.ui.rm_name_lineEdit.text()
 
-        for face in origin_face_list:
-            if face["name"] == remove_name:
-                self.ui.cf_confirmBtn.clicked.connect(self.take_and_confirm)
-                self.ui.remStack.setCurrentWidget(self.ui.confirmPage)
-                self.openCamera(self.ui.cf_labelWC)
-                break
-        # if all face['name'] != remove_name goto following else
+        if db.find_user(remove_name):
+            self.ui.cf_confirmBtn.clicked.connect(self.take_and_confirm)
+            self.ui.remStack.setCurrentWidget(self.ui.confirmPage)
+            self.openCamera(self.ui.cf_labelWC)
         else:
-            print(f"{remove_name} not fund in the list.")
+            print(f"{remove_name} not found in the list.")
             self.open_dialog(f"{remove_name} not fund in the database.")
             self.goRemove()
             return
 
     def goRemoveAllConfirm(self):
         # Verify if this name exists in the database.
-        try:
-            with open('faces.pickle', 'rb') as f:
-                origin_face_list = pickle.load(f)
-        except Exception as e:
-            self.open_dialog("The database is empty")
-            self.goHome()
-            return
-        # if database is empty
-        if not origin_face_list:
+        if not db.read_data():
             self.open_dialog("The database is empty")
             self.goHome()
             return
@@ -486,14 +436,9 @@ class FaceMainWindow:
 
     ###################### The Others ######################
     def isSupervisor(self, super_name):
-        try:
-            with open('faces.pickle', 'rb') as f:
-                origin_face_list = pickle.load(f)
-        except FileNotFoundError:
-            print("file is not existed.")
-            return
-
-        for face in origin_face_list:
+        face = db.read_someone_data(super_name)
+        if face:
+            face = face[0]
             if face['name'] == super_name:
                 if face["isSupervisor"] is True:
                     print(f"Confirm Supervisor : {face['name']} .")
@@ -508,10 +453,13 @@ class FaceMainWindow:
     def show(self):
         self.main_win.show()
 
-    def open_dialog(self,content):
+    def open_dialog(self, content):
         QMessageBox.information(self.main_win, "Message", content)
-
-
+        
+    def to_rgb(self, frame):
+        small_pic = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        rgb_pic = cv2.cvtColor(small_pic, cv2.COLOR_BGR2RGB)  # change frame to RGB
+        return rgb_pic
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

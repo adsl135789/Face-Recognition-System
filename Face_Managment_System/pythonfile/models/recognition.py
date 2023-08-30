@@ -1,22 +1,32 @@
 import face_recognition
-import os
-import sys
-import cv2
-import math
-import time
 import numpy as np
-import pickle
+import configparser
+import sys
+from Face_Recognition.models.database_ctrl import Database
+
+config = configparser.ConfigParser()
+config.read("data/config.ini")
+try:
+    db = Database(
+        host=config["database"]["host"],
+        password=config["database"]["password"],
+        user=config["database"]["user"],
+        database=config["database"]["database"]
+    )
+except Exception as e:
+    print(e)
+    sys.exit("Connecting to the database failed!!")
 
 
-def face_confidence(face_distance, face_match_threshold=0.6):
-    rg = (1.0 - face_match_threshold)
-    linear_val = (1.0 - face_distance) / (rg * 2.0)
-
-    if face_distance > face_match_threshold:
-        return str(round(linear_val * 100, 2)) + '%'
-    else:
-        value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
-        return str(round(value, 2)) + '%'
+# def face_confidence(face_distance, face_match_threshold=0.6):
+#     rg = (1.0 - face_match_threshold)
+#     linear_val = (1.0 - face_distance) / (rg * 2.0)
+#
+#     if face_distance > face_match_threshold:
+#         return str(round(linear_val * 100, 2)) + '%'
+#     else:
+#         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
+#         return str(round(value, 2)) + '%'
 
 
 class FaceRecognition:
@@ -25,7 +35,6 @@ class FaceRecognition:
         self.face_locations = []
         self.face_encodings = []
         self.face_names = []
-        self.real_face = []
         self.known_face_list = []
         self.known_face_permission = []
         self.known_face_names = []
@@ -35,15 +44,17 @@ class FaceRecognition:
     # Read from the data file
     def encode_faces(self):
         try:
-            with open("faces.pickle", 'rb') as f:
-                self.known_face_list = pickle.load(f)
+            self.known_face_list = db.read_data()
+
+            for known_face in self.known_face_list:
+                for i in range(len(known_face['encode'])):  # 還原encode的type
+                    known_face['encode'][i] = np.array(known_face['encode'][i])
+
+                self.known_face_encodings.append(known_face["encode"][0])
+                self.known_face_permission.append(known_face["permission"])
+                self.known_face_names.append(known_face["name"])
         except Exception as e:
             print(f"{e} occured")
-        for known_face in self.known_face_list:
-            print(known_face)
-            self.known_face_encodings.append(known_face["encode"][0])
-            self.known_face_permission.append(known_face["permission"])
-            self.known_face_names.append(known_face["name"])
 
     def clearData(self):
         self.known_face_permission = []
@@ -59,10 +70,12 @@ class FaceRecognition:
         self.face_locations = face_recognition.face_locations(rgb_small_frame)
         self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations, model='small')
         face_data = {"name": "", "permission": []}
-        if not self.known_face_encodings:  # 如果沒偵測到人
-            # print("no detect any face")
-            # self.face_names.append(face_data)
+        if not self.face_encodings:  # 若無偵測到人
+            print("There is no anyone in the frame. Return []")
             return self.face_names
+        if not self.known_face_encodings:
+            print("Database haven't register user. Return EMPTY")
+            return "EMPTY"
 
         for face_encoding in self.face_encodings:
             face_data["name"] = "Unknown"
@@ -75,6 +88,7 @@ class FaceRecognition:
             if matches[best_match_index]:
                 face_data["name"] = self.known_face_names[best_match_index]
                 face_data["permission"].append(self.known_face_permission[best_match_index])
+            print(f"detect identity = {face_data}")
             self.face_names.append(face_data)
         return self.face_names
 

@@ -46,7 +46,7 @@ class Ui_MainWindow(object):
         self.logo_label.setMaximumSize(QtCore.QSize(100, 100))
         self.logo_label.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
         self.logo_label.setText("")
-        self.logo_label.setPixmap(QtGui.QPixmap("Face_register_UI/icon/logo_JINWEN.png"))
+        self.logo_label.setPixmap(QtGui.QPixmap("icon/logo_JINWEN.png"))
         self.logo_label.setScaledContents(True)
         self.logo_label.setObjectName("logo_label")
         self.gridLayout_2.addWidget(self.logo_label, 1, 1, 1, 1)

@@ -2,7 +2,6 @@ import os,sys
 import face_recognition
 import cv2
 import pickle
-import time
 
 origin_face_list = []
 

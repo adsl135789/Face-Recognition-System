@@ -1,13 +1,12 @@
-import sys, os
+import sys
 import cv2
 import datetime
 import platform
-import pymysql
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
-from mainWindow import Ui_MainWindow
-from faceRecognition import FaceRecognition
+from Face_Recognition.mainWindow import Ui_MainWindow
+from Face_Recognition.models.faceRecognition import FaceRecognition
 
 
 class MainWindow:
@@ -25,7 +24,6 @@ class MainWindow:
         else:
             self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
 
-
         ret, self.frame = self.video_capture.read()
         # set Timer
         self.ui.timer = QTimer(self.main_win)
@@ -34,9 +32,9 @@ class MainWindow:
 
         self.ui.timer_recognition = QTimer(self.main_win)
         self.ui.timer_recognition.timeout.connect(self.rec)
-        self.ui.timer_recognition.start(5000)
+        self.ui.timer_recognition.start(3000)
 
-        self.fr = FaceRecognition(0.425)
+        self.fr = FaceRecognition(0.45)
 
     def rec(self):
         self.ui.name_content.setText("")
@@ -56,11 +54,9 @@ class MainWindow:
         current_datetime = datetime.datetime.now()
         formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
         name_content = ''
-
-        if face_data['name']:
+        if face_data:
             for face in face_data:
-                print(face["name"], face["permission"])
-                name_content += f'{face["name"]} \\ '
+                name_content += f'{face["name"]} '
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
 

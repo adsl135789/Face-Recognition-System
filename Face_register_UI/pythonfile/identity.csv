@@ -1,5 +1,0 @@
-name,ID,isSupervisor,permission
-ian,1,True,"[True, True]"
-ian3,3,False,"[True, False]"
-ian,1,True,"[True, True]"
-123,123,False,"[False, True]"
