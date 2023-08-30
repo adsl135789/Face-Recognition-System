@@ -4,25 +4,26 @@ import pymysql
 
 class Database:
     def __init__(self, host='localhost', user='root', password='0000', database='faces'):
+        self.cursor = None
+        self.db = None
         self.host = host
         self.user = user
         self.password = password
         self.database = database
         self.table_name = "table_faces"
 
-    self.connect(self):
+    def connect(self):
         self.db = pymysql.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
+            host=self.host,
+            user=self.user,
+            password=self.password,
+            database=self.database
         )
         self.cursor = self.db.cursor()
 
-    self.disconnect(self):
+    def disconnect(self):
         self.cursor.close()
         self.db.close()
-
 
     def create_table(self):
         self.connect()
