@@ -1,5 +1,7 @@
 import json
 import pymysql
+from pymysql import err
+
 
 
 class Database:
@@ -22,8 +24,14 @@ class Database:
         self.cursor = self.db.cursor()
 
     def disconnect(self):
-        self.cursor.close()
-        self.db.close()
+        try:
+            self.cursor.close()
+            self.db.close()
+        except err.Error as e:
+            if "Already closed" in str(e):
+                pass  # 忽略已关闭连接的异常
+            else:
+                raise  # 重新引发其他异常
 
     def create_table(self):
         self.connect()
@@ -58,10 +66,12 @@ class Database:
         config_json_list = []
         if not results:
             print("db is empty.")
+            self.disconnect()
             return results
         for row in results:
             id, name, config_json = row
             config = json.loads(config_json)
+            print(name, end='  ')
             config_json_list.append(config)
         self.disconnect()
         return config_json_list
