@@ -17,14 +17,18 @@ class MainWindow:
 
         # self.video_capture = None
         self.video_idx = 0
-        if platform.system() == "Linux":
-            self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
-        elif platform.system() == "Darwin":
-            self.video_capture = cv2.VideoCapture(self.video_idx)
-        else:
-            self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
-
+        try:
+            if platform.system() == "Linux":
+                self.video_capture = cv2.VideoCapture(self.video_idx)
+            elif platform.system() == "Darwin":
+                self.video_capture = cv2.VideoCapture(self.video_idx)
+            else:
+                self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
+        except Exception as e:
+            print(e)
         ret, self.frame = self.video_capture.read()
+        if not ret:
+            sys.exit("video open failed") 
         # set Timer
         self.ui.timer = QTimer(self.main_win)
         self.ui.timer.timeout.connect(self.update_frame)

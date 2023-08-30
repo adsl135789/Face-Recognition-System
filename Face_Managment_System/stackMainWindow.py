@@ -10,8 +10,8 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from stack_main import Ui_MainWindow
 from functools import partial
-from Face_Managment_System.models.recognition import FaceRecognition
-from Face_Managment_System.models.database_ctrl import Database
+from models.recognition import FaceRecognition
+from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
 config.read("data/config.ini")
