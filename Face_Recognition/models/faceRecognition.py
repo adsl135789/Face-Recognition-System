@@ -1,7 +1,7 @@
 import face_recognition
 import cv2
 import numpy as np
-from Face_Recognition.models.database_ctrl import Database
+from models.database_ctrl import Database
 import configparser
 import sys
 

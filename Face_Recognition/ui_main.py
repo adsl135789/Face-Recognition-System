@@ -5,8 +5,8 @@ import platform
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
-from Face_Recognition.mainWindow import Ui_MainWindow
-from Face_Recognition.models.faceRecognition import FaceRecognition
+from mainWindow import Ui_MainWindow
+from models.faceRecognition import FaceRecognition
 
 
 class MainWindow:
