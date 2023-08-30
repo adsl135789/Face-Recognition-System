@@ -36,6 +36,7 @@ class Database:
         self.cursor.execute(insert_query, (name, config_str))
         self.db.commit()
         print(f"Inserted data: name='{name}'")
+        print(self.read_data())
 
     # 读取数据
     def read_data(self):

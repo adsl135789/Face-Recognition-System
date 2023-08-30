@@ -10,8 +10,8 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from stack_main import Ui_MainWindow
 from functools import partial
-from Face_Managment_System.models.recognition import FaceRecognition
-from Face_Managment_System.models.database_ctrl import Database
+from models.recognition import FaceRecognition
+from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
 config.read("data/config.ini")
@@ -38,7 +38,6 @@ class FaceMainWindow:
         self.main_win = QMainWindow()
         self.ui = Ui_MainWindow()  # 实例化 Ui_MainWindow 类
         self.ui.setupUi(self.main_win)
-
         # 設定每個stackWidget的初始頁面
         self.ui.mainStack.setCurrentWidget(self.ui.mainPage)
         self.ui.remStack.setCurrentWidget(self.ui.rmPage)
@@ -419,6 +418,7 @@ class FaceMainWindow:
             return
 
     def goRemoveAllConfirm(self):
+
         # Verify if this name exists in the database.
         if not db.read_data():
             self.open_dialog("The database is empty")
