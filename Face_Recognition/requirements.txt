@@ -1,8 +1,0 @@
-dlib==19.22
-# opencv-python
-opencv-python-headless
-face_recognition
-numpy
-cmake
-pymysql
-pandas

@@ -3,10 +3,15 @@ import cv2
 import numpy as np
 from models.database_ctrl import Database
 import configparser
-import sys
+import sys, os
 
 config = configparser.ConfigParser()
-config.read("data/config.ini")
+
+script_folder = os.path.dirname(os.path.abspath(__file__))
+parent_folder = os.path.dirname(script_folder)
+config_path = os.path.join(parent_folder, "data/config.ini")
+print(config_path)
+config.read(config_path)
 try:
     db = Database(
         host=config["database"]["host"],
@@ -15,7 +20,7 @@ try:
         database=config["database"]["database"]
     )
 except Exception as e:
-    print(e)
+    print("Error:", e)
     sys.exit("Connecting to the database failed!!")
 
 
@@ -33,15 +38,12 @@ class FaceRecognition:
         self.process_current_frame = True
         self.encode_faces()
 
-
     # Read from the data file
     def encode_faces(self):
         self.known_face_list = db.read_data()
 
         for known_face in self.known_face_list:
-            for i in range(len(known_face['encode'])):  # 還原encode的type
-                known_face['encode'][i] = np.array(known_face['encode'][i])
-            self.known_face_encodings.append(known_face["encode"][0])
+            self.known_face_encodings.append(np.array(known_face["encode"]))
             self.known_face_names.append(known_face["name"])
             self.known_face_permission.append(known_face["permission"])
 

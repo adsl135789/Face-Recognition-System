@@ -14,6 +14,7 @@ from models.recognition import FaceRecognition
 from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
+print(os.getcwd())
 config.read("data/config.ini")
 superCode = config['data']['superCode']
 confirmLimit = config['data']['confirmLimit']
@@ -70,7 +71,7 @@ class FaceMainWindow:
         # init video variables
         if platform.system() == "Linux":
             print("Run on Linux")
-            self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
+            self.video_capture = cv2.VideoCapture(video_idx)
         elif platform.system() == "Darwin":
             print("Run on MacOS")
             self.video_capture = cv2.VideoCapture(video_idx)
@@ -291,8 +292,8 @@ class FaceMainWindow:
 
     def write_data(self, new_identity, rgb_small_frame):
         # 修正encode的type nparray to list
-        for i in range(len(new_identity['encode'])):
-            new_identity['encode'][i] = new_identity['encode'][i].tolist()
+        new_identity['encode'] = new_identity['encode'][0].tolist()
+
         # 檢查是否有人註冊第二次
         if rgb_small_frame is not None:
             detect_names = self.fr.recognition(rgb_small_frame)

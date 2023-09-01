@@ -1,11 +1,12 @@
 import face_recognition
 import numpy as np
 import configparser
-import sys
+import sys,os
 from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
 config.read("data/config.ini")
+
 try:
     db = Database(
         host=config["database"]["host"],
@@ -14,7 +15,7 @@ try:
         database=config["database"]["database"]
     )
 except Exception as e:
-    print(e)
+    print("Error:", e)
     sys.exit("Connecting to the database failed!!")
 
 
@@ -47,10 +48,10 @@ class FaceRecognition:
             self.known_face_list = db.read_data()
 
             for known_face in self.known_face_list:
-                for i in range(len(known_face['encode'])):  # 還原encode的type
-                    known_face['encode'][i] = np.array(known_face['encode'][i])
+                # for i in range(len(known_face['encode'])):  # 還原encode的type
+                #     known_face['encode'][i] = np.array(known_face['encode'][i])
 
-                self.known_face_encodings.append(known_face["encode"][0])
+                self.known_face_encodings.append(np.array(known_face["encode"]))
                 self.known_face_permission.append(known_face["permission"])
                 self.known_face_names.append(known_face["name"])
         except Exception as e:
