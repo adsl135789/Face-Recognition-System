@@ -8,16 +8,14 @@ import platform
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
-from stack_main import Ui_MainWindow
+from ui_view import Ui_MainWindow
 from functools import partial
 from models.recognition import FaceRecognition
 from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
-script_folder = os.path.dirname(os.path.abspath(__file__))
-parent_folder = os.path.dirname(script_folder)
-config_path = os.path.join(parent_folder, "data/config.ini")
-config.read(config_path)
+
+config.read("data/config.ini")
 superCode = config['data']['superCode']
 confirmLimit = config['data']['confirmLimit']
 video_idx = int(config["data"]["video_idx"])

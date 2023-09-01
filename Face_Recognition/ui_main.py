@@ -1,13 +1,23 @@
 import sys
 import cv2
+import os
 import datetime
 import platform
+import configparser
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
-from mainWindow import Ui_MainWindow
+from ui_view import Ui_MainWindow
 from models.faceRecognition import FaceRecognition
 
+config = configparser.ConfigParser()
+
+script_folder = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_folder, "data/config.ini")
+print(config_path)
+config.read(config_path)
+
+door_num = int(config['door']['door_number'])
 
 class MainWindow:
     def __init__(self):
@@ -61,6 +71,11 @@ class MainWindow:
         if face_data:
             for face in face_data:
                 name_content += f'{face["name"]} '
+                #  開門
+                if face['permission'][door_num] and door_num == 0:
+                    print("Open the Entrance")
+                elif face['permission'][door_num] and door_num == 1:
+                    print("Open the Meeting Room")
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
 
