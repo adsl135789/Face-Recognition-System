@@ -14,8 +14,10 @@ from models.recognition import FaceRecognition
 from models.database_ctrl import Database
 
 config = configparser.ConfigParser()
-print(os.getcwd())
-config.read("data/config.ini")
+script_folder = os.path.dirname(os.path.abspath(__file__))
+parent_folder = os.path.dirname(script_folder)
+config_path = os.path.join(parent_folder, "data/config.ini")
+config.read(config_path)
 superCode = config['data']['superCode']
 confirmLimit = config['data']['confirmLimit']
 video_idx = int(config["data"]["video_idx"])

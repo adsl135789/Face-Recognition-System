@@ -10,8 +10,8 @@ config = configparser.ConfigParser()
 script_folder = os.path.dirname(os.path.abspath(__file__))
 parent_folder = os.path.dirname(script_folder)
 config_path = os.path.join(parent_folder, "data/config.ini")
-print(config_path)
 config.read(config_path)
+
 try:
     db = Database(
         host=config["database"]["host"],
