@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1000, 800)
+        MainWindow.resize(974, 781)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -35,7 +35,6 @@ class Ui_MainWindow(object):
         self.main_nameWidget = QtWidgets.QWidget(self.main_left)
         font = QtGui.QFont()
         font.setBold(True)
-        font.setWeight(75)
         self.main_nameWidget.setFont(font)
         self.main_nameWidget.setObjectName("main_nameWidget")
         self.formLayout = QtWidgets.QFormLayout(self.main_nameWidget)
@@ -47,7 +46,6 @@ class Ui_MainWindow(object):
         font.setPointSize(44)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.main_label1.setFont(font)
         self.main_label1.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 44pt \"Uroob\";")
@@ -60,30 +58,18 @@ class Ui_MainWindow(object):
         font.setPointSize(44)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.main_label2.setFont(font)
         self.main_label2.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 44pt \"Uroob\";")
         self.main_label2.setTextFormat(QtCore.Qt.RichText)
         self.main_label2.setObjectName("main_label2")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.SpanningRole, self.main_label2)
-        self.logo_label = QtWidgets.QLabel(self.main_nameWidget)
-        self.logo_label.setMinimumSize(QtCore.QSize(100, 100))
-        self.logo_label.setMaximumSize(QtCore.QSize(100, 100))
-        self.logo_label.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
-        self.logo_label.setText("")
-        self.logo_label.setPixmap(QtGui.QPixmap(os.path.join(os.getcwd(), "../icon/logo_JINWEN.png")))
-        self.logo_label.setScaledContents(True)
-        self.logo_label.setObjectName("logo_label")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.logo_label)
         self.verticalLayout_2.addWidget(self.main_nameWidget, 0, QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.userBtn = QtWidgets.QPushButton(self.main_left)
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.userBtn.setFont(font)
         self.userBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -203,7 +189,6 @@ class Ui_MainWindow(object):
         font.setPointSize(52)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.user_label1.setFont(font)
         self.user_label1.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 52pt \"Uroob\";")
@@ -216,7 +201,6 @@ class Ui_MainWindow(object):
         font.setPointSize(50)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.user_label2.setFont(font)
         self.user_label2.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 50pt \"Uroob\";")
@@ -226,13 +210,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addWidget(self.user_pageNameWidget, 0, QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.user_userWidget = QtWidgets.QWidget(self.user_left)
         self.user_userWidget.setObjectName("user_userWidget")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.user_userWidget)
-        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.user_userWidget)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.user_name_label = QtWidgets.QLabel(self.user_userWidget)
         self.user_name_label.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.user_name_label.setObjectName("user_name_label")
-        self.gridLayout_3.addWidget(self.user_name_label, 0, 0, 1, 1)
+        self.verticalLayout_6.addWidget(self.user_name_label)
         self.user_name_lineEdit = QtWidgets.QLineEdit(self.user_userWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -240,12 +224,12 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.user_name_lineEdit.sizePolicy().hasHeightForWidth())
         self.user_name_lineEdit.setSizePolicy(sizePolicy)
         self.user_name_lineEdit.setObjectName("user_name_lineEdit")
-        self.gridLayout_3.addWidget(self.user_name_lineEdit, 1, 0, 1, 2)
+        self.verticalLayout_6.addWidget(self.user_name_lineEdit)
         self.user_id_label = QtWidgets.QLabel(self.user_userWidget)
         self.user_id_label.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.user_id_label.setObjectName("user_id_label")
-        self.gridLayout_3.addWidget(self.user_id_label, 2, 0, 1, 1)
+        self.verticalLayout_6.addWidget(self.user_id_label)
         self.user_id_lineEdit = QtWidgets.QLineEdit(self.user_userWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -254,23 +238,23 @@ class Ui_MainWindow(object):
         self.user_id_lineEdit.setSizePolicy(sizePolicy)
         self.user_id_lineEdit.setText("")
         self.user_id_lineEdit.setObjectName("user_id_lineEdit")
-        self.gridLayout_3.addWidget(self.user_id_lineEdit, 3, 0, 1, 2)
+        self.verticalLayout_6.addWidget(self.user_id_lineEdit)
         self.user_perm_label = QtWidgets.QLabel(self.user_userWidget)
         self.user_perm_label.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.user_perm_label.setObjectName("user_perm_label")
-        self.gridLayout_3.addWidget(self.user_perm_label, 4, 0, 1, 1)
+        self.verticalLayout_6.addWidget(self.user_perm_label)
         self.user_perm1 = QtWidgets.QCheckBox(self.user_userWidget)
         self.user_perm1.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.user_perm1.setIconSize(QtCore.QSize(20, 20))
         self.user_perm1.setObjectName("user_perm1")
-        self.gridLayout_3.addWidget(self.user_perm1, 5, 0, 1, 1)
+        self.verticalLayout_6.addWidget(self.user_perm1)
         self.user_perm2 = QtWidgets.QCheckBox(self.user_userWidget)
         self.user_perm2.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.user_perm2.setObjectName("user_perm2")
-        self.gridLayout_3.addWidget(self.user_perm2, 5, 1, 1, 1)
+        self.verticalLayout_6.addWidget(self.user_perm2)
         self.verticalLayout_8.addWidget(self.user_userWidget)
         self.user_leftBtnWidget = QtWidgets.QWidget(self.user_left)
         self.user_leftBtnWidget.setObjectName("user_leftBtnWidget")
@@ -280,9 +264,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.user_takeBtn.setFont(font)
         self.user_takeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -312,9 +294,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.user_homeBtn.setFont(font)
         self.user_homeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -367,9 +347,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.user_retakeBtn.setFont(font)
         self.user_retakeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -400,9 +378,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.user_okBtn.setFont(font)
         self.user_okBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -456,7 +432,6 @@ class Ui_MainWindow(object):
         font.setPointSize(52)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.super_label1.setFont(font)
         self.super_label1.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 52pt \"Uroob\";")
@@ -469,7 +444,6 @@ class Ui_MainWindow(object):
         font.setPointSize(50)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.super_label2.setFont(font)
         self.super_label2.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 50pt \"Uroob\";")
@@ -522,9 +496,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.super_takeBtn.setFont(font)
         self.super_takeBtn.setMouseTracking(True)
         self.super_takeBtn.setStyleSheet("QPushButton {\n"
@@ -555,9 +527,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.super_homeBtn.setFont(font)
         self.super_homeBtn.setMouseTracking(True)
         self.super_homeBtn.setStyleSheet("QPushButton {\n"
@@ -611,9 +581,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.super_retakeBtn.setFont(font)
         self.super_retakeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -644,9 +612,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.super_okBtn.setFont(font)
         self.super_okBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -703,7 +669,6 @@ class Ui_MainWindow(object):
         font.setPointSize(52)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.rm_label1.setFont(font)
         self.rm_label1.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 52pt \"Uroob\";")
@@ -716,7 +681,6 @@ class Ui_MainWindow(object):
         font.setPointSize(50)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.rm_label2.setFont(font)
         self.rm_label2.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 50pt \"Uroob\";")
@@ -768,9 +732,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(22)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.rm_homeBtn.setFont(font)
         self.rm_homeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 22pt \"OpenDyslexic\";\n"
@@ -865,7 +827,6 @@ class Ui_MainWindow(object):
         font.setPointSize(52)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.cf_label1.setFont(font)
         self.cf_label1.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 52pt \"Uroob\";")
@@ -876,9 +837,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(18)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.cf_confirmBtn.setFont(font)
         self.cf_confirmBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 18pt \"OpenDyslexic\";\n"
@@ -911,7 +870,6 @@ class Ui_MainWindow(object):
         font.setPointSize(50)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
         self.cf_label2.setFont(font)
         self.cf_label2.setStyleSheet("color: rgb(105, 183, 222);\n"
 "font: 50pt \"Uroob\";")
@@ -923,9 +881,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("OpenDyslexic")
         font.setPointSize(18)
-        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(10)
         self.cf_homeBtn.setFont(font)
         self.cf_homeBtn.setStyleSheet("QPushButton {\n"
 "    font: 80 18pt \"OpenDyslexic\";\n"
@@ -953,7 +909,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.cf_homeBtn, 1, 1, 1, 1)
         self.verticalLayout.addWidget(self.cf_labelwidget)
         self.confirm_WC = QtWidgets.QFrame(self.confirmPage)
-        self.confirm_WC.setMinimumSize(QtCore.QSize(500, 500))
+        self.confirm_WC.setMinimumSize(QtCore.QSize(550, 550))
         self.confirm_WC.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.confirm_WC.setFrameShadow(QtWidgets.QFrame.Raised)
         self.confirm_WC.setObjectName("confirm_WC")
@@ -974,7 +930,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.mainStack.setCurrentIndex(3)
+        self.mainStack.setCurrentIndex(1)
         self.remStack.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

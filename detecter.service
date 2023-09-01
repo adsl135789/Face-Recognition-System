@@ -1,0 +1,11 @@
+[Unit]
+Description=The program execute face recognition every 3-5 seconds, and it will restart when it crash for any reason.
+After=network.target  # 如果需要等待网络启动后再启动你的程序
+
+[Service]
+ExecStart=/path/to/your/program
+Restart=always  # 始终重新启动程序
+User=your_username  # 替换为你的用户名
+
+[Install]
+WantedBy=multi-user.target

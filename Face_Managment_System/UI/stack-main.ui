@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="mainPage">
        <property name="minimumSize">
@@ -47,7 +47,6 @@
             <widget class="QWidget" name="main_nameWidget" native="true">
              <property name="font">
               <font>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -64,7 +63,6 @@
                  <font>
                   <family>Uroob</family>
                   <pointsize>44</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -90,7 +88,6 @@ font: 44pt &quot;Uroob&quot;;</string>
                  <font>
                   <family>Uroob</family>
                   <pointsize>44</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -116,9 +113,8 @@ font: 44pt &quot;Uroob&quot;;</string>
               <font>
                <family>OpenDyslexic</family>
                <pointsize>22</pointsize>
-               <weight>10</weight>
                <italic>false</italic>
-               <bold>false</bold>
+               <fontweight></fontweight>
               </font>
              </property>
              <property name="styleSheet">
@@ -294,7 +290,6 @@ QPushButton:pressed{
                  <font>
                   <family>Uroob</family>
                   <pointsize>52</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -320,7 +315,6 @@ font: 52pt &quot;Uroob&quot;;</string>
                  <font>
                   <family>Uroob</family>
                   <pointsize>50</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -342,8 +336,8 @@ font: 50pt &quot;Uroob&quot;;</string>
            </item>
            <item>
             <widget class="QWidget" name="user_userWidget" native="true">
-             <layout class="QGridLayout" name="gridLayout_3">
-              <item row="0" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
                <widget class="QLabel" name="user_name_label">
                 <property name="styleSheet">
                  <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
@@ -354,7 +348,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" colspan="2">
+              <item>
                <widget class="QLineEdit" name="user_name_lineEdit">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -364,7 +358,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
+              <item>
                <widget class="QLabel" name="user_id_label">
                 <property name="styleSheet">
                  <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
@@ -375,7 +369,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0" colspan="2">
+              <item>
                <widget class="QLineEdit" name="user_id_lineEdit">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -388,7 +382,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
+              <item>
                <widget class="QLabel" name="user_perm_label">
                 <property name="styleSheet">
                  <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
@@ -399,7 +393,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item>
                <widget class="QCheckBox" name="user_perm1">
                 <property name="styleSheet">
                  <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
@@ -416,7 +410,7 @@ font: 50pt &quot;Uroob&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
+              <item>
                <widget class="QCheckBox" name="user_perm2">
                 <property name="styleSheet">
                  <string notr="true">font: 80 18pt &quot;OpenDyslexic&quot;;
@@ -439,9 +433,8 @@ font: 50pt &quot;Uroob&quot;;</string>
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -481,9 +474,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -566,9 +558,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -609,9 +600,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -680,7 +670,6 @@ QPushButton:pressed{
                  <font>
                   <family>Uroob</family>
                   <pointsize>52</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -706,7 +695,6 @@ font: 52pt &quot;Uroob&quot;;</string>
                  <font>
                   <family>Uroob</family>
                   <pointsize>50</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -801,9 +789,8 @@ font: 50pt &quot;Uroob&quot;;</string>
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="mouseTracking">
@@ -846,9 +833,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="mouseTracking">
@@ -934,9 +920,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -977,9 +962,8 @@ QPushButton:pressed{
                  <font>
                   <family>OpenDyslexic</family>
                   <pointsize>22</pointsize>
-                  <weight>10</weight>
                   <italic>false</italic>
-                  <bold>false</bold>
+                  <fontweight></fontweight>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1058,7 +1042,6 @@ QPushButton:pressed{
                   <font>
                    <family>Uroob</family>
                    <pointsize>52</pointsize>
-                   <weight>50</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                   </font>
@@ -1084,7 +1067,6 @@ font: 52pt &quot;Uroob&quot;;</string>
                   <font>
                    <family>Uroob</family>
                    <pointsize>50</pointsize>
-                   <weight>50</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                   </font>
@@ -1188,9 +1170,8 @@ font: 50pt &quot;Uroob&quot;;</string>
                   <font>
                    <family>OpenDyslexic</family>
                    <pointsize>22</pointsize>
-                   <weight>10</weight>
                    <italic>false</italic>
-                   <bold>false</bold>
+                   <fontweight></fontweight>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -1310,7 +1291,6 @@ QPushButton:pressed{
                   <font>
                    <family>Uroob</family>
                    <pointsize>52</pointsize>
-                   <weight>50</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                   </font>
@@ -1336,9 +1316,8 @@ font: 52pt &quot;Uroob&quot;;</string>
                   <font>
                    <family>OpenDyslexic</family>
                    <pointsize>18</pointsize>
-                   <weight>10</weight>
                    <italic>false</italic>
-                   <bold>false</bold>
+                   <fontweight></fontweight>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -1384,7 +1363,6 @@ QPushButton:pressed{
                   <font>
                    <family>Uroob</family>
                    <pointsize>50</pointsize>
-                   <weight>50</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                   </font>
@@ -1413,9 +1391,8 @@ font: 50pt &quot;Uroob&quot;;</string>
                   <font>
                    <family>OpenDyslexic</family>
                    <pointsize>18</pointsize>
-                   <weight>10</weight>
                    <italic>false</italic>
-                   <bold>false</bold>
+                   <fontweight></fontweight>
                   </font>
                  </property>
                  <property name="styleSheet">

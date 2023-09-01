@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.widget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.label1 = QtWidgets.QLabel(self.widget)
-        self.label1.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.label1.setMaximumSize(QtCore.QSize(16777215, 80))
         font = QtGui.QFont()
         font.setFamily("Uroob")
         font.setPointSize(52)
