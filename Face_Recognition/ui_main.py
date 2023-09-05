@@ -70,10 +70,11 @@ class MainWindow:
             for face in face_data:
                 name_content += f'{face["name"]} '
                 #  開門
-                if face['permission'][door_num] and door_num == 0:
-                    print("Open the Entrance")
-                elif face['permission'][door_num] and door_num == 1:
-                    print("Open the Meeting Room")
+                if face['permission']:
+                    if face['permission'][door_num] and door_num == 0:
+                        print("Open the Entrance")
+                    elif face['permission'][door_num] and door_num == 1:
+                        print("Open the Meeting Room")
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
 
