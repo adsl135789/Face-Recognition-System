@@ -12,9 +12,7 @@ from models.faceRecognition import FaceRecognition
 
 config = configparser.ConfigParser()
 
-script_folder = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(script_folder, "data/config.ini")
-print(config_path)
+config_path = os.path.join(os.getcwd(), "data/config.ini")
 config.read(config_path)
 
 door_num = int(config['door']['door_number'])
