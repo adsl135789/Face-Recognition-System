@@ -695,17 +695,22 @@ class Ui_MainWindow(object):
         self.verticalLayout_11 = QtWidgets.QVBoxLayout(self.rm_labelWidget2)
         self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.rm_label3 = QtWidgets.QLabel(self.rm_labelWidget2)
-        self.rm_label3.setStyleSheet("font: 80 16pt \"OpenDyslexic\";\n"
+        self.rm_label3.setStyleSheet("font: 80 14pt \"OpenDyslexic\";\n"
 "")
         self.rm_label3.setObjectName("rm_label3")
         self.verticalLayout_11.addWidget(self.rm_label3)
+        self.rm_label3_1 = QtWidgets.QLabel(self.rm_labelWidget2)
+        self.rm_label3_1.setStyleSheet("font: 80 14pt \"OpenDyslexic\";\n"
+                                     "")
+        self.rm_label3_1.setObjectName("rm_label3_1")
+        self.verticalLayout_11.addWidget(self.rm_label3_1)
         self.rm_label3_2 = QtWidgets.QLabel(self.rm_labelWidget2)
-        self.rm_label3_2.setStyleSheet("font: 80 16pt \"OpenDyslexic\";\n"
+        self.rm_label3_2.setStyleSheet("font: 80 14pt \"OpenDyslexic\";\n"
 "")
         self.rm_label3_2.setObjectName("rm_label3_2")
         self.verticalLayout_11.addWidget(self.rm_label3_2)
         self.rm_label4 = QtWidgets.QLabel(self.rm_labelWidget2)
-        self.rm_label4.setStyleSheet("font: 80 16pt \"OpenDyslexic\";\n"
+        self.rm_label4.setStyleSheet("font: 80 14pt \"OpenDyslexic\";\n"
 "")
         self.rm_label4.setObjectName("rm_label4")
         self.verticalLayout_11.addWidget(self.rm_label4)
@@ -964,8 +969,9 @@ class Ui_MainWindow(object):
         self.super_okBtn.setText(_translate("MainWindow", "Register"))
         self.rm_label1.setText(_translate("MainWindow", "Remove"))
         self.rm_label2.setText(_translate("MainWindow", "User"))
-        self.rm_label3.setText(_translate("MainWindow", "If you are supervisor,  you can enter the name you want to remove."))
-        self.rm_label3_2.setText(_translate("MainWindow", "Or,  you can remove all of user including yourself."))
+        self.rm_label3.setText(_translate("MainWindow", "If you are supervisor"))
+        self.rm_label3_1.setText(_translate("MainWindow", "1. you can enter the name you want to remove."))
+        self.rm_label3_2.setText(_translate("MainWindow", "2. you can remove all of user who is not supervisor"))
         self.rm_label4.setText(_translate("MainWindow", "If not,  you can only remove your own information."))
         self.rm_name_label.setText(_translate("MainWindow", "Name"))
         self.rm_homeBtn.setText(_translate("MainWindow", "Main page"))

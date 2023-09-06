@@ -147,7 +147,7 @@ class FaceMainWindow:
     def openCamera(self, label):
         if self.video_capture is None:
             if platform.system() == "Linux":
-                self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
+                self.video_capture = cv2.VideoCapture(video_idx)
             elif platform.system() == "Darwin":
                 self.video_capture = cv2.VideoCapture(video_idx)
             else:
@@ -370,8 +370,18 @@ class FaceMainWindow:
             print("the csv file is empty.")
 
     def removeAll(self):
-        with open('data/identity.csv', 'w') as f:
-            pass
+        if os.path.exists(csv_file_path) and os.path.getsize(csv_file_path) > 0:
+            df = pd.read_csv(csv_file_path)
+            for idx, is_super in enumerate(df['isSupervisor']):
+                if is_super is False:
+                    df = df.drop(idx)
+
+            # 將修改後的 DataFrame 寫回 CSV 檔案
+            df.to_csv(csv_file_path, index=False)
+
+            print("已刪除資料並更新 CSV 檔案:", csv_file_path)
+        else:
+            print("the csv file is empty.")
         db.delete_all_data()
 
     ###################### Switching Page ######################

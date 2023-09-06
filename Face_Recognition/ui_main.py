@@ -81,7 +81,7 @@ class MainWindow:
     def openCamera(self):
         if self.video_capture is None:
             if platform.system() == "Linux":
-                self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
+                self.video_capture = cv2.VideoCapture(self.video_idx)
             elif platform.system() == "Darwin":
                 self.video_capture = cv2.VideoCapture(self.video_idx)
             else:

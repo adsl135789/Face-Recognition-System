@@ -101,7 +101,10 @@ class Database:
 
     def delete_all_data(self):
         self.connect()
-        delete_query = f"DELETE FROM {self.table_name}"
+        delete_query = f"""
+            DELETE FROM {self.table_name}
+            WHERE JSON_EXTRACT(config, '$.isSupervisor') != true;
+            """
         self.cursor.execute(delete_query)
         self.db.commit()
         print(f"Deleted all data")
