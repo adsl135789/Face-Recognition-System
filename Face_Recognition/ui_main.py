@@ -9,6 +9,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from ui_view import Ui_MainWindow
 from models.faceRecognition import FaceRecognition
+from models.relay_ctl import RelayCtl
 
 config = configparser.ConfigParser()
 
@@ -48,6 +49,8 @@ class MainWindow:
 
         self.fr = FaceRecognition(0.45)
 
+        self.relayCtl = RelayCtl()
+
     def rec(self):
         self.ui.name_content.setText("")
         self.ui.time_content.setText("")
@@ -72,8 +75,10 @@ class MainWindow:
                 #  開門
                 if face['permission']:
                     if face['permission'][door_num] and door_num == 0:
+                        self.relayCtl.turn_on()
                         print("Open the Entrance")
                     elif face['permission'][door_num] and door_num == 1:
+                        self.relayCtl.turn_off()
                         print("Open the Meeting Room")
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)
@@ -111,6 +116,7 @@ class MainWindow:
         self.ui.timer.stop()
         self.ui.timer_recognition.stop()
         self.video_capture.release()
+        self.relayCtl.close()
         cv2.destroyAllWindows()
         app.quit()
 
