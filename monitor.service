@@ -1,0 +1,15 @@
+[Unit]
+Description=Monitor and restart 
+After=network.target
+StartLimitBurst = 10
+StartLimitIntervalSec = 20
+
+[Service]
+ExecStart=/usr/bin/python3 /home/rak/Desktop/new/Face-Recognition-System/Face_Managment_System/stackMainWindow.py
+WorkingDirectory=/home/rak/Desktop/new/Face-Recognition-System/Face_Managment_System/
+User=rak
+Restart=always
+Environment="DISPLAY=:0"
+
+[Install]
+WantedBy=graphical.target

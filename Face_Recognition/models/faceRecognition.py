@@ -35,7 +35,6 @@ class FaceRecognition:
         self.known_face_names = []
         self.known_face_encodings = []
         self.process_current_frame = True
-        self.encode_faces()
 
     # Read from the data file
     def encode_faces(self):
@@ -75,7 +74,7 @@ class FaceRecognition:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 face_data["name"] = self.known_face_names[best_match_index]
-                face_data["permission"].append(self.known_face_permission[best_match_index])
+                face_data["permission"]= self.known_face_permission[best_match_index]
             print(f"detect identity = {face_data}\n")
             self.face_names.append(face_data)
         return self.face_names

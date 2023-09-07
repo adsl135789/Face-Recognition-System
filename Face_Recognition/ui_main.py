@@ -3,9 +3,10 @@ import cv2
 import os
 import datetime
 import platform
+import threading
 import configparser
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer, Qt, QThread
 from PyQt5.QtGui import QImage, QPixmap
 from ui_view import Ui_MainWindow
 from models.faceRecognition import FaceRecognition
@@ -51,6 +52,10 @@ class MainWindow:
 
         self.relayCtl = RelayCtl()
 
+        
+
+        
+
     def rec(self):
         self.ui.name_content.setText("")
         self.ui.time_content.setText("")
@@ -75,10 +80,16 @@ class MainWindow:
                 #  開門
                 if face['permission']:
                     if face['permission'][door_num] and door_num == 0:
-                        self.relayCtl.turn_on()
+                        
+                        relay_timer = threading.Timer(0,self.relayCtl.open_door)
+                        relay_timer.start()
+                        
                         print("Open the Entrance")
                     elif face['permission'][door_num] and door_num == 1:
-                        self.relayCtl.turn_off()
+
+                        relay_timer = threading.Timer(0,self.relayCtl.open_door)
+                        relay_timer.start()
+                        
                         print("Open the Meeting Room")
             self.ui.time_content.setText(formatted_datetime)
             self.ui.name_content.setText(name_content)

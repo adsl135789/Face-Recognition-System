@@ -4,7 +4,6 @@ wheel==0.41.2
 dlib==19.22
 sip==6.7.11
 PyQt5
-# opencv-python
 opencv-python-headless
 face_recognition
 numpy

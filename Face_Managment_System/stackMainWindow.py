@@ -5,7 +5,6 @@ import threading
 import face_recognition
 import configparser
 import platform
-os.chdir("/home/rak/Desktop/new/Face-Recognition-System/Face_Managment_System")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
@@ -13,6 +12,7 @@ from ui_view import Ui_MainWindow
 from functools import partial
 from models.recognition import FaceRecognition
 from models.database_ctrl import Database
+
 
 config = configparser.ConfigParser()
 config_path = os.path.join(os.getcwd(),"data/config.ini")
