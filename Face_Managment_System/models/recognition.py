@@ -78,7 +78,7 @@ class FaceRecognition:
 
             if matches[best_match_index]:
                 face_data["name"] = self.known_face_names[best_match_index]
-                face_data["permission"].append(self.known_face_permission[best_match_index])
+                face_data["permission"] = self.known_face_permission[best_match_index]
             print(f"detect identity = {face_data}")
             self.face_names.append(face_data)
         return self.face_names

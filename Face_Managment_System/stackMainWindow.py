@@ -5,6 +5,7 @@ import threading
 import face_recognition
 import configparser
 import platform
+os.chdir("/home/rak/Desktop/new/Face-Recognition-System/Face_Managment_System")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
@@ -17,7 +18,6 @@ config = configparser.ConfigParser()
 config_path = os.path.join(os.getcwd(),"data/config.ini")
 config.read(config_path)
 superCode = config['data']['superCode']
-confirmLimit = config['data']['confirmLimit']
 video_idx = int(config["data"]["video_idx"])
 csv_file_path = config["path"]["csv_file_path"]
 
@@ -91,7 +91,6 @@ class FaceMainWindow:
 
         self.fr = FaceRecognition(0.425)
 
-        self.confirmCount = 0
 
     ###################### Update Each Frame ######################
     def update_frame_user(self):
@@ -193,9 +192,16 @@ class FaceMainWindow:
             rgb_small_frame = self.to_rgb(self.frame)
 
             detect_names = self.fr.recognition(rgb_small_frame)
-            if len(detect_names) > 1:
-                self.open_dialog("Please don't have more than two people in the camara at the same time")
+            detcet_face_num = len(detect_names)
+            if detcet_face_num > 1:
+                self.open_dialog("Please don't have more than two people in the camara at the same time.")
                 self.goConfirm()
+                return
+            elif detcet_face_num == 0:
+                self.open_dialog("Detect Failed. Please retake the photo.")
+                self.goConfirm()
+                return
+
             detect_name = detect_names[0]
             print(f"removing {detect_name=}")
             if detect_name["name"] == self.ui.rm_name_lineEdit.text():  # remove own identity
@@ -206,20 +212,15 @@ class FaceMainWindow:
                 self.remove_identiy()
                 self.goHome()
                 return
-            elif detect_name["name"] == "":  # no detect anyone
-                self.open_dialog("Detect Failed. Please Retake the photo.")
             elif detect_name["name"] == 'Unknown':  # the person detected is not registered
-                self.open_dialog("The detected identity is not in the database.")
-            else:  # detect_name != remove_name, and you are not Supervisor,
-                self.open_dialog("You can't remove other user.")
-            # failed confirm
-            self.goConfirm()
-            self.confirmCount += 1
-            if self.confirmCount == confirmLimit:
-                self.open_dialog(f"Failed identity verification for {confirmLimit} consecutive attempts.")
-                self.confirmCount = 0
+                self.open_dialog("You haven't register in the database.")
                 self.goHome()
                 return
+            else:  # detect_name != remove_name, and you are not Supervisor,
+                self.open_dialog("You can't remove other user.")
+                self.goRemove()
+                return
+
         else:
             print("self.frame is empty")
             self.open_dialog("The frame is empty.")
@@ -237,7 +238,6 @@ class FaceMainWindow:
                     self.open_dialog("Remove all of user")
                     self.goHome()
                 else:
-                    self.open_dialog("Confirm fail.")
                     self.goHome()
 
     ###################### Identity Register ######################
@@ -419,6 +419,10 @@ class FaceMainWindow:
         remove_name = self.ui.rm_name_lineEdit.text()
 
         if db.find_user(remove_name):
+            try:
+                self.ui.cf_confirmBtn.clicked.disconnect()
+            except Exception as e:
+                pass
             self.ui.cf_confirmBtn.clicked.connect(self.take_and_confirm)
             self.ui.remStack.setCurrentWidget(self.ui.confirmPage)
             self.openCamera(self.ui.cf_labelWC)
@@ -436,6 +440,10 @@ class FaceMainWindow:
             self.goHome()
             return
         # go confirm page and open camera
+        try:
+            self.ui.cf_confirmBtn.clicked.disconnect()
+        except Exception as e:
+            pass
         self.ui.cf_confirmBtn.clicked.connect(self.removeAll_confirm)
         self.ui.remStack.setCurrentWidget(self.ui.confirmPage)
         self.openCamera(self.ui.cf_labelWC)
