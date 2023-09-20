@@ -5,7 +5,7 @@ import datetime
 import platform
 import threading
 import configparser
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from ui_view import Ui_MainWindow
@@ -25,6 +25,7 @@ class MainWindow:
         self.main_win = QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.main_win)
+        self.initUISize()
 
         # self.video_capture = None
         self.video_idx = 0
@@ -53,6 +54,14 @@ class MainWindow:
 
         self.lcm = Lcm()
         self.lcm.start()
+
+    def initUISize(self):
+        desktop = QDesktopWidget()
+        screen_rect = desktop.screenGeometry()
+        screen_width = screen_rect.width()
+        screen_height = screen_rect.height()
+        self.main_win.setWindowTitle("景文科技大學門禁系統")
+        self.main_win.resize(screen_width, screen_height)
 
 
 
