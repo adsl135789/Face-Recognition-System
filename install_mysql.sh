@@ -25,6 +25,7 @@ sudo apt install python3-pip
 sudo apt install ufw
 sudo ufw enable
 sudo ufw allow 3306
+sudo ufw allow 51688
 sudo ufw allow 22/tcp
 sudo ufw status
 

@@ -6,6 +6,9 @@ import socket
 import time
 from models.relay_ctl import RelayCtl
 from PyQt5.QtCore import QThread
+import requests
+
+
 
 class Lcm(QThread):
     def __init__(self):
@@ -16,7 +19,6 @@ class Lcm(QThread):
 
         # Create a UDP socket
         self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
         # Bind the socket to the specified host and port
         self.udp_socket.bind((self.host, self.port))
 
@@ -24,12 +26,13 @@ class Lcm(QThread):
 
     def run(self):
         while True:
+            print("-- waiting -- ")
             # Receive data from a client
-            data, address = self.udp_socket.recvfrom(1024)  # Maximum data size is 1024 bytes
-            
+            data, address = self.udp_socket.recvfrom(1024)  # Maximum data size is 1024 bytes   
             # Decode the received data from bytes to a string
             received_data = data.decode('utf-8')
-            
+            print("Received:", received_data)            
+
             # Check if the received data matches the expected string
             if received_data == "$0 set unlock":
                 print("Received:", received_data)            
