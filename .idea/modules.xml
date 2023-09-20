@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Face-Recognition-with-liveness-detection.iml" filepath="$PROJECT_DIR$/.idea/Face-Recognition-with-liveness-detection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Face-Recognition-System.iml" filepath="$PROJECT_DIR$/.idea/Face-Recognition-System.iml" />
     </modules>
   </component>
 </project>
