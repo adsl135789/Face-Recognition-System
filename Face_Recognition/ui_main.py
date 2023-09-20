@@ -6,11 +6,12 @@ import platform
 import threading
 import configparser
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QTimer, Qt, QThread
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from ui_view import Ui_MainWindow
 from models.faceRecognition import FaceRecognition
 from models.relay_ctl import RelayCtl
+from models.lcm import Lcm
 
 config = configparser.ConfigParser()
 
@@ -46,15 +47,14 @@ class MainWindow:
 
         self.ui.timer_recognition = QTimer(self.main_win)
         self.ui.timer_recognition.timeout.connect(self.rec)
-        self.ui.timer_recognition.start(3000)
+        self.ui.timer_recognition.start(7000)
 
         self.fr = FaceRecognition(0.45)
 
-        self.relayCtl = RelayCtl()
+        self.lcm = Lcm()
+        self.lcm.start()
 
-        
 
-        
 
     def rec(self):
         self.ui.name_content.setText("")
@@ -80,15 +80,17 @@ class MainWindow:
                 #  開門
                 if face['permission']:
                     if face['permission'][door_num] and door_num == 0:
-                        
+
+                        self.relayCtl = RelayCtl()
                         relay_timer = threading.Timer(0,self.relayCtl.open_door)
                         relay_timer.start()
                         
                         print("Open the Entrance")
                     elif face['permission'][door_num] and door_num == 1:
-
+                        self.relayCtl = RelayCtl()
                         relay_timer = threading.Timer(0,self.relayCtl.open_door)
                         relay_timer.start()
+
                         
                         print("Open the Meeting Room")
             self.ui.time_content.setText(formatted_datetime)

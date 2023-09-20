@@ -11,28 +11,29 @@ class RelayCtl:
     def __init__(self):
         self.port = config['serial']['port']
         self.br = int(config['serial']['baud_rate'])
+        self.data_bits = 8
+        self.stop_bits = 1
         self.connect()
 
     def connect(self):
         try:
-            self.ser = serial.Serial(self.port, self.br)
+            self.ser = serial.Serial(self.port, self.br, bytesize=self.data_bits, stopbits=self.stop_bits, parity=serial.PARITY_NONE)
         except serial.SerialException as e:
             print(f"serial fail : {e}")
 
     def turn_on(self):
-        
         data_turn_on = bytes([0xA0,0x01,0x01,0xA2])
         self.ser.write(data_turn_on)
 
     def turn_off(self):
         data_turn_off = bytes([0xA0,0x01,0x00,0xA1])
-
         self.ser.write(data_turn_off)
 
     def open_door(self):
         self.turn_on()
-        time.sleep(1)
+        time.sleep(5)
         self.turn_off()
+        self.close()
 
     def close(self):
         self.ser.close()

@@ -14,15 +14,45 @@ class Database:
         self.database = database
         self.table_name = "table_faces"
 
+    def create_database_if_not_exists(self):
+        try:
+            connection = pymysql.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                database=self.database
+            )
+            connection.close()
+        except pymysql.MySQLError as e:
+            if "Unknown database" in str(e):
+                connection = pymysql.connect(
+                    host=self.host,
+                    user=self.user,
+                    password=self.password,
+                    port=3306
+                )
+                cursor = connection.cursor()
+
+                create_database_squry = f"CREATE DATABASE {self.database}"
+                cursor.execute(create_database_squry)
+
+                connection.commit()
+                print(f"Create database {self.database}")
+
+                cursor.close()
+                connection.close()
+
     def connect(self):
+        self.create_database_if_not_exists()
+        
         self.db = pymysql.connect(
             host=self.host,
             user=self.user,
             password=self.password,
             database=self.database
         )
-        self.cursor = self.db.cursor()
 
+        self.cursor = self.db.cursor()
     def disconnect(self):
         try:
             self.cursor.close()
