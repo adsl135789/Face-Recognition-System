@@ -14,6 +14,10 @@ class SSignal(QThread):
         super().__init__()
         self.door1 = (config['socket']['door1_ip'],int(config['socket']['door1_port']))
         self.door2 = (config['socket']['door2_ip'],int(config['socket']['door2_port']))
+        print(self.door1)
+
+        print(self.door2)
+
         self.door1_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.door2_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.exec_command = exec_command

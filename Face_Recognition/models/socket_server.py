@@ -13,19 +13,9 @@ config.read(config_path)
 
 class SocketServer(QThread):
     def __init__(self) -> None:
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        super().__init__()
 
-        # 綁定伺服器到一個特定的主機和埠
-
-        self.server_socket.bind((config['socket']['host_ip'],int(config['socket']['host_port'])))
-
-        # 等待客戶端連線
-        self.server_socket.listen(5)
-        print(f"等待客戶端連線在 {config['socket']['host_ip']}:{config['socket']['host_port']}...")
-
-        self.client_socket, self.client_address = self.server_socket.accept()
-        print(f"已連線到 {self.client_address}")
-
+    def run(self):
         try:
             self.local_db = Database(
                 host=config["local_db"]["host"],
@@ -34,7 +24,7 @@ class SocketServer(QThread):
                 database=config["local_db"]["database"]
             )
             # check connection and create table
-            self.local_db.create_table
+            self.local_db.create_table()
         except Exception as e:
             raise RuntimeError("Failed to initialize local_db") from e
 
@@ -45,17 +35,27 @@ class SocketServer(QThread):
                 user=config["database"]["user"],
                 database=config["database"]["database"]
             )
-            # check connection 
+            # check connection
             self.remote_db.connect()
             self.remote_db.disconnect()
         except Exception as e:
             raise RuntimeError("Failed to initialize remote_db") from e
-        
+
         self.db_copy()
-        print(self.local_db.read_data)
 
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def run(self):
+        # 綁定伺服器到一個特定的主機和埠
+
+        self.server_socket.bind((config['socket']['host_ip'], int(config['socket']['host_port'])))
+
+        # 等待客戶端連線
+        self.server_socket.listen(5)
+        print(f"等待客戶端連線在 {config['socket']['host_ip']}:{config['socket']['host_port']}...")
+
+        self.client_socket, self.client_address = self.server_socket.accept()
+        print(f"已連線到 {self.client_address}")
+
         while True:
             print("-----socket server is waiting for client's mes-----")
             # 接收客戶端傳來的訊息
@@ -79,18 +79,19 @@ class SocketServer(QThread):
             print(self.local_db.read_data)
 
     def db_copy(self):
-        self.remote_db.cursor.execute(f"SELECT * FROM {self.remote_db.database}")
+        self.remote_db.connect()
+        self.local_db.connect()
+        self.remote_db.cursor.execute(f"SELECT * FROM {self.remote_db.table_name}")
         data_to_copy = self.remote_db.cursor.fetchall()
-        insert_query = f"INSERT INTO {self.remote_db.database} (name, config) VALUES (%s, %s)"
+        insert_query = f"INSERT INTO {self.remote_db.table_name} (name, config) VALUES (%s, %s)"
 
         # 批量插入数据
         for row in data_to_copy:
-            name, config_json = row
-            #config = json.loads(config_json)  # 解析JSON字段为Python对象
-            #self.local_db.cursor.execute(insert_query, (name, json.dumps(config)))  # 插入数据时将config字段重新转为JSON字符串
+            id, name, config_json = row
             self.local_db.cursor.execute(insert_query, (name, config_json))
 
         # 提交變更
-        self.local_db.cursor.commit()
-
+        self.local_db.db.commit()
+        self.remote_db.disconnect()
+        self.local_db.disconnect()
         print("資料複製完成")

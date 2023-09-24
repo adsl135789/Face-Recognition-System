@@ -5,7 +5,6 @@ import threading
 import face_recognition
 import configparser
 import platform
-import socket
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDesktopWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
@@ -202,9 +201,23 @@ class FaceMainWindow:
         else:
             self.open_dialog("Error: access to camera failed")
             self.goHome()
+        rgb_pic = self.to_rgb(self.frame)
+        face_locations = face_recognition.face_locations(rgb_pic)
+        if not face_locations:
+            self.open_dialog("Detect Failed. Please retake the photo.")
+            if label == self.ui.user_labelWC:
+                self.ui.timer_user.start()
+            elif label == self.ui.super_labelWC:
+                self.ui.timer_super.start()
+            elif label == self.ui.cf_labelWC:
+                self.goConfirm()
+            return False
+        return True
 
     def take_and_confirm(self):
-        self.takePhoto(self.ui.cf_labelWC)
+        if self.takePhoto(self.ui.cf_labelWC) is False:
+            return
+
         if self.frame is not None:  # 檢查 self.frame 是否為有效圖像
             rgb_small_frame = self.to_rgb(self.frame)
 
@@ -212,10 +225,6 @@ class FaceMainWindow:
             detcet_face_num = len(detect_names)
             if detcet_face_num > 1:
                 self.open_dialog("Please don't have more than two people in the camara at the same time.")
-                self.goConfirm()
-                return
-            elif detcet_face_num == 0:
-                self.open_dialog("Detect Failed. Please retake the photo.")
                 self.goConfirm()
                 return
 
@@ -304,10 +313,14 @@ class FaceMainWindow:
             self.open_dialog("Supervisor code is wrong.")
             self.goHome()
             return
+
+
         new_identity["encode"] = face_encodings
+
         self.write_data(new_identity, rgb_pic)
 
     def write_data(self, new_identity, rgb_small_frame):
+        print(new_identity)
         # 修正encode的type nparray to list
         new_identity['encode'] = new_identity['encode'][0].tolist()
 
@@ -339,11 +352,14 @@ class FaceMainWindow:
         # if new identity has been registered, close this program.
         if db.read_someone_data(new_identity["name"]):
             self.open_dialog("This identity has been existed or your name has been registered.")
+            self.goHome()
+            return
         else:
             db.insert_data(new_identity['name'], new_identity)
             self.write_csv(new_identity)
 
         signal = SSignal('insert')
+        signal.setParent(self.main_win)
         signal.start()
 
         self.open_dialog(f"{new_identity['name']} Registration Completed")
@@ -373,6 +389,7 @@ class FaceMainWindow:
         db.delete_data(remove_name)
 
         signal = SSignal(f'delete {remove_name}')
+        signal.setParent(self.main_win)
         signal.start()
 
         background_thread = threading.Thread(target=self.remove_csv_in_background, args=(remove_name,))
@@ -408,6 +425,7 @@ class FaceMainWindow:
         db.delete_all_data()
 
         signal = SSignal('deleteAll')
+        signal.setParent(self.main_win)
         signal.start()
 
     ###################### Switching Page ######################

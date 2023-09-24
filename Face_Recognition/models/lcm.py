@@ -12,6 +12,8 @@ from PyQt5.QtCore import QThread
 class Lcm(QThread):
     def __init__(self):
         super().__init__()
+
+    def run(self):
         # Define the UDP server settings
         self.host = '0.0.0.0'
         self.port = 51688
@@ -22,8 +24,6 @@ class Lcm(QThread):
         self.udp_socket.bind((self.host, self.port))
 
         print(f"UDP server is listening on {self.host}:{self.port}")
-
-    def run(self):
         while True:
             print("-- waiting -- ")
             # Receive data from a client
