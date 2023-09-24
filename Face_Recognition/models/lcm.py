@@ -6,7 +6,6 @@ import socket
 import time
 from models.relay_ctl import RelayCtl
 from PyQt5.QtCore import QThread
-import requests
 
 
 

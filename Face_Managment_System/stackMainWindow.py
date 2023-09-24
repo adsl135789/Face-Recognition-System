@@ -5,18 +5,21 @@ import threading
 import face_recognition
 import configparser
 import platform
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+import socket
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDesktopWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from ui_view import Ui_MainWindow
 from functools import partial
 from models.recognition import FaceRecognition
 from models.database_ctrl import Database
+from models.socket_signal import SSignal
 
 
 config = configparser.ConfigParser()
 config_path = os.path.join(os.getcwd(),"data/config.ini")
 config.read(config_path)
+
 superCode = config['data']['superCode']
 video_idx = int(config["data"]["video_idx"])
 csv_file_path = config["path"]["csv_file_path"]
@@ -30,8 +33,7 @@ try:
     )
     db.create_table()
 except Exception as e:
-    print(e)
-    sys.exit("Connecting to the database failed!!")
+    sys.exit(f"Connecting to the database failed!!\nError:{e}")
 
 
 class FaceMainWindow:
@@ -39,6 +41,8 @@ class FaceMainWindow:
         self.main_win = QMainWindow()
         self.ui = Ui_MainWindow()  # 实例化 Ui_MainWindow 类
         self.ui.setupUi(self.main_win)
+        self.initUISize()
+
         # 設定每個stackWidget的初始頁面
         self.ui.mainStack.setCurrentWidget(self.ui.mainPage)
         self.ui.remStack.setCurrentWidget(self.ui.rmPage)
@@ -76,6 +80,7 @@ class FaceMainWindow:
             print("Run on MacOS")
             self.video_capture = cv2.VideoCapture(video_idx)
         else:
+            print("Run on Windows")
             self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
         self.frame = None
 
@@ -89,8 +94,16 @@ class FaceMainWindow:
         self.ui.timer_confirm = QTimer(self.main_win)
         self.ui.timer_confirm.timeout.connect(self.update_frame_confirm)
 
-        self.fr = FaceRecognition(0.425)
+        self.fr = FaceRecognition(0.40)
 
+    # Set window size to maximum
+    def initUISize(self):
+        desktop = QDesktopWidget()
+        screen_rect = desktop.screenGeometry()
+        screen_width = screen_rect.width()
+        screen_height = screen_rect.height()
+        self.main_win.setWindowTitle("景文科大餐旅系門禁管理系統")
+        self.main_win.resize(screen_width, screen_height)
 
     ###################### Update Each Frame ######################
     def update_frame_user(self):
@@ -107,7 +120,7 @@ class FaceMainWindow:
                 label = self.ui.user_labelWC
                 self.update_label(label, pixmap)
             else:
-                print("failed")
+                sys.exit("Camera access failed!")
 
     def update_frame_super(self):
         if self.video_capture is not None:
@@ -121,6 +134,8 @@ class FaceMainWindow:
                 pixmap = QPixmap.fromImage(image)
                 label = self.ui.super_labelWC
                 self.update_label(label, pixmap)
+            else:
+                sys.exit("Camera access failed!")
 
     def update_frame_confirm(self):
         if self.video_capture is not None:
@@ -134,6 +149,8 @@ class FaceMainWindow:
                 pixmap = QPixmap.fromImage(image)
                 label = self.ui.cf_labelWC
                 self.update_label(label, pixmap)
+            else:
+                sys.exit("Camera access failed!")
 
     def update_label(self, label, pixmap):
         label_width = label.width()
@@ -151,12 +168,12 @@ class FaceMainWindow:
                 self.video_capture = cv2.VideoCapture(video_idx)
             else:
                 self.video_capture = cv2.VideoCapture(video_idx, cv2.CAP_DSHOW)
+
         if label == self.ui.user_labelWC:
             print("timer start : user video")
             self.ui.timer_user.start(30)
         elif label == self.ui.super_labelWC:
             print("timer start : supervisor video")
-
             self.ui.timer_super.start(30)
         elif label == self.ui.cf_labelWC:
             print("timer start : confirm video")
@@ -325,7 +342,11 @@ class FaceMainWindow:
         else:
             db.insert_data(new_identity['name'], new_identity)
             self.write_csv(new_identity)
-            self.open_dialog(f"{new_identity['name']} Registration Completed")
+
+        signal = SSignal('insert')
+        signal.start()
+
+        self.open_dialog(f"{new_identity['name']} Registration Completed")
         self.goHome()
 
     def write_csv(self, new_identity):
@@ -350,7 +371,9 @@ class FaceMainWindow:
         print(f"{remove_name} has been deleted.")
         self.open_dialog(f"{remove_name} has been deleted.")
         db.delete_data(remove_name)
-        db.read_data()
+
+        signal = SSignal(f'delete {remove_name}')
+        signal.start()
 
         background_thread = threading.Thread(target=self.remove_csv_in_background, args=(remove_name,))
         background_thread.start()
@@ -383,6 +406,9 @@ class FaceMainWindow:
         else:
             print("the csv file is empty.")
         db.delete_all_data()
+
+        signal = SSignal('deleteAll')
+        signal.start()
 
     ###################### Switching Page ######################
     def goUser(self):

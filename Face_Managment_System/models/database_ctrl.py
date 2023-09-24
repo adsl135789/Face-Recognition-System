@@ -1,5 +1,7 @@
 import json
 import pymysql
+import os,sys
+import socket
 from pymysql import err
 
 class Database:
@@ -11,7 +13,8 @@ class Database:
         self.password = password
         self.database = database
         self.table_name = "table_faces"
-    
+        self.create_database_if_not_exists()
+
     def create_database_if_not_exists(self):
         try:
             connection = pymysql.connect(
@@ -41,8 +44,6 @@ class Database:
                 connection.close()
 
     def connect(self):
-        self.create_database_if_not_exists()
-
         self.db = pymysql.connect(
             host=self.host,
             user=self.user,

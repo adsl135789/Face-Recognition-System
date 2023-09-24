@@ -77,7 +77,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.name_label)
         self.name_content = QtWidgets.QLabel(self.user_userWidget)
         self.name_content.setMaximumSize(QtCore.QSize(16777215, 80))
-        self.name_content.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
+        self.name_content.setStyleSheet("color: rgb(55, 67, 94);\n"
+                                      "font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.name_content.setText("")
         self.name_content.setObjectName("name_content")
@@ -89,7 +90,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.time_label)
         self.time_content = QtWidgets.QLabel(self.user_userWidget)
         self.time_content.setMaximumSize(QtCore.QSize(16777215, 80))
-        self.time_content.setStyleSheet("font: 80 18pt \"OpenDyslexic\";\n"
+        self.time_content.setStyleSheet("color: rgb(55, 67, 94);\n"
+                                      "font: 80 18pt \"OpenDyslexic\";\n"
 "")
         self.time_content.setText("")
         self.time_content.setObjectName("time_content")

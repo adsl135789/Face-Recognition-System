@@ -12,6 +12,7 @@ from ui_view import Ui_MainWindow
 from models.faceRecognition import FaceRecognition
 from models.relay_ctl import RelayCtl
 from models.lcm import Lcm
+from models.socket_server import SocketServer
 
 config = configparser.ConfigParser()
 
@@ -27,7 +28,6 @@ class MainWindow:
         self.ui.setupUi(self.main_win)
         self.initUISize()
 
-        # self.video_capture = None
         self.video_idx = 0
         try:
             if platform.system() == "Linux":
@@ -38,9 +38,11 @@ class MainWindow:
                 self.video_capture = cv2.VideoCapture(self.video_idx, cv2.CAP_DSHOW)
         except Exception as e:
             print(e)
+
         ret, self.frame = self.video_capture.read()
         if not ret:
             sys.exit("video open failed") 
+
         # set Timer
         self.ui.timer = QTimer(self.main_win)
         self.ui.timer.timeout.connect(self.update_frame)
@@ -48,19 +50,25 @@ class MainWindow:
 
         self.ui.timer_recognition = QTimer(self.main_win)
         self.ui.timer_recognition.timeout.connect(self.rec)
-        self.ui.timer_recognition.start(7000)
+        self.ui.timer_recognition.start(1500)
 
-        self.fr = FaceRecognition(0.45)
+        self.fr = FaceRecognition(0.40)
 
         self.lcm = Lcm()
         self.lcm.start()
+
+        try:
+            self.socket_server = SocketServer()
+            self.socket_server.start()
+        except RuntimeError as e:
+            print(f"Error: {e}")
 
     def initUISize(self):
         desktop = QDesktopWidget()
         screen_rect = desktop.screenGeometry()
         screen_width = screen_rect.width()
         screen_height = screen_rect.height()
-        self.main_win.setWindowTitle("景文科技大學門禁系統")
+        self.main_win.setWindowTitle("景文科大餐旅系門禁系統")
         self.main_win.resize(screen_width, screen_height)
 
 
