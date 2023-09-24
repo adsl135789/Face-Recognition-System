@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="550859fd-971e-47d6-bb87-98476df0f4dc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Managment_System/data/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Managment_System/data/config.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Managment_System/data/identity.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Managment_System/data/identity.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Managment_System/models/socket_signal.py" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Managment_System/models/socket_signal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Managment_System/stackMainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Managment_System/stackMainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Recognition/models/lcm.py" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Recognition/models/lcm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Face_Recognition/models/socket_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Recognition/models/socket_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Face_Recognition/models/faceRecognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/Face_Recognition/models/faceRecognition.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

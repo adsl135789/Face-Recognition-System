@@ -19,8 +19,14 @@ try:
         database=config["database"]["database"]
     )
 except Exception as e:
-    print("Error:", e)
-    sys.exit("Connecting to the database failed!!")
+    db = Database(
+        host=config["local_db"]["host"],
+        password=config["local_db"]["password"],
+        user=config["local_db"]["user"],
+        database=config["local_db"]["database"]
+    )
+    # print("Error:", e)
+    # sys.exit("Connecting to the database failed!!")
 
 
 class FaceRecognition:
