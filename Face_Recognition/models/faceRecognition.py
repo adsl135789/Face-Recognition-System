@@ -13,17 +13,18 @@ config.read(config_path)
 
 try:
     db = Database(
-        host=config["database"]["host"],
-        password=config["database"]["password"],
-        user=config["database"]["user"],
-        database=config["database"]["database"]
-    )
-except Exception as e:
-    db = Database(
         host=config["local_db"]["host"],
         password=config["local_db"]["password"],
         user=config["local_db"]["user"],
         database=config["local_db"]["database"]
+    )
+
+except Exception as e:
+    db = Database(
+        host=config["database"]["host"],
+        password=config["database"]["password"],
+        user=config["database"]["user"],
+        database=config["database"]["database"]
     )
     # print("Error:", e)
     # sys.exit("Connecting to the database failed!!")

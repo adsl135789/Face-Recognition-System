@@ -8,7 +8,6 @@ config = configparser.ConfigParser()
 config_path = os.path.join(os.getcwd(), "data/config.ini")
 config.read(config_path)
 
-
 class SSignal(QThread):
     def __init__(self, exec_command) -> None:
         super().__init__()
@@ -18,22 +17,24 @@ class SSignal(QThread):
 
         print(self.door2)
 
-        self.door1_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.door2_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.door1_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.door2_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.door1_socket.settimeout(1)
+        self.door2_socket.settimeout(1)
         self.exec_command = exec_command
-        self.flag1=1
-        self.flag2=1
+        self.flag1 = 1
+        self.flag2 = 1
         try:
-            self.door1_socket.bind(self.door1)
-        except:
+            self.door1_socket.connect(self.door1)
+        except Exception as e:
             self.flag1 = 0
-            print("door1 socket connect failed!")
+            print(f"door1 socket connect failed! {e}")
 
         try:
-            self.door2_socket.bind(self.door1)
-        except:
+            self.door2_socket.connect(self.door2)
+        except Exception as e:
             self.flag2 = 0
-            print("door2 socket connect failed!")
+            print(f"door2 socket connect failed! {e}")
 
     def run(self):
         if self.flag1:
@@ -47,6 +48,6 @@ class SSignal(QThread):
             self.door1_socket.close()
         if self.flag2:
             self.door2_socket.close()
-        
+
 
                 

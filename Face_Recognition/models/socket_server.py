@@ -26,6 +26,7 @@ class SocketServer(QThread):
             # check connection and create table
             self.local_db.create_table()
         except Exception as e:
+            print("Failed to initialize local_db")
             raise RuntimeError("Failed to initialize local_db") from e
 
         try:
@@ -39,6 +40,7 @@ class SocketServer(QThread):
             self.remote_db.connect()
             self.remote_db.disconnect()
         except Exception as e:
+            print("Failed to initialize remote_db")
             raise RuntimeError("Failed to initialize remote_db") from e
 
         self.db_copy()
@@ -59,10 +61,14 @@ class SocketServer(QThread):
         while True:
             print("-----socket server is waiting for client's mes-----")
             # 接收客戶端傳來的訊息
-            data = self.client_socket.recv(1024).decode('utf-8').split("")
+            try:
+                data = self.client_socket.recv(1024).decode('utf-8').split("")
+                print(f"{data=}")
+            except Exception as e:
+                break
 
             if not data:
-                break
+                continue
 
             if data[0] == 'insert':
                 self.db_copy()
@@ -75,12 +81,14 @@ class SocketServer(QThread):
                 self.local_db.delete_all_data()
                 pass
             else: 
-                break
-            print(self.local_db.read_data)
+                continue
+            self.client_socket.close()
 
     def db_copy(self):
         self.remote_db.connect()
+        self.local_db.create_database_if_not_exists()
         self.local_db.connect()
+        self.local_db.cursor.execute(f"DELETE FROM {self.local_db.table_name}")
         self.remote_db.cursor.execute(f"SELECT * FROM {self.remote_db.table_name}")
         data_to_copy = self.remote_db.cursor.fetchall()
         insert_query = f"INSERT INTO {self.remote_db.table_name} (name, config) VALUES (%s, %s)"
