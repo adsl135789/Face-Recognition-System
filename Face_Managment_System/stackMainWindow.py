@@ -342,9 +342,20 @@ class FaceMainWindow:
                 return
             elif num_people == 1: 
                 if detect_names[0]["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
-                    self.open_dialog("You cannot register twice using different names.")
+                    self.open_dialog("You have already registered.")
                     self.goHome()
                     return
+                else:  # 註冊成功，寫入host database and csv file, 通知remote database update
+                    db.insert_data(new_identity['name'], new_identity)
+                    self.write_csv(new_identity)
+            
+                    signal = SSignal('insert')
+                    signal.setParent(self.main_win)
+                    signal.start()
+            
+                    self.open_dialog(f"{new_identity['name']} Registration Completed")
+                    self.goHome()
+        
             elif num_people == 0:  # 無偵測到人臉，重拍照
                 self.open_dialog("Detect Failed. Please Retake the photo.")
                 if not new_identity["isSupervisor"]:
@@ -354,29 +365,18 @@ class FaceMainWindow:
                     self.openCamera(self.ui.super_labelWC)
                     self.goSupervisor()
                 return
-
-
         else:
             print("rgb_small_frame is empty")
             self.open_dialog("The frame is empty.")
             self.goHome()
             return
 
-        # if new identity has been registered, close this program.
-        if db.read_someone_data(new_identity["name"]):
-            self.open_dialog("This identity has been existed or your name has been registered.")
-            self.goHome()
-            return
-        else:
-            db.insert_data(new_identity['name'], new_identity)
-            self.write_csv(new_identity)
-
-        signal = SSignal('insert')
-        signal.setParent(self.main_win)
-        signal.start()
-
-        self.open_dialog(f"{new_identity['name']} Registration Completed")
-        self.goHome()
+        # # if new identity has been registered, close this program.
+        # if db.read_someone_data(new_identity["name"]):
+        #     self.open_dialog("This identity has been existed or your name has been registered.")
+        #     self.goHome()
+        #     return
+        # else:
 
     def write_csv(self, new_identity):
         new_identity.pop("encode")  # remove the column of "encode"
