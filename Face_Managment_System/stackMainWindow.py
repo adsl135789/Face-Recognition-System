@@ -189,18 +189,20 @@ class FaceMainWindow:
             self.ui.cf_labelWC.clear()  # 清除 QLabel 中的图像
             self.video_capture = None
 
-    def takePhoto(self, label):
+        def (self, label):
         if label == self.ui.user_labelWC:
             self.ui.timer_user.stop()
         elif label == self.ui.super_labelWC:
             self.ui.timer_super.stop()
         elif label == self.ui.cf_labelWC:
             self.ui.timer_confirm.stop()
+            
         if self.video_capture:
             ret, self.frame = self.video_capture.read()
         else:
             self.open_dialog("Error: access to camera failed")
             self.goHome()
+            
         rgb_pic = self.to_rgb(self.frame)
         face_locations = face_recognition.face_locations(rgb_pic)
         if not face_locations:
@@ -282,7 +284,6 @@ class FaceMainWindow:
         face_encodings = face_recognition.face_encodings(rgb_pic, face_locations)
 
         permission = [self.ui.user_perm1.isChecked(), self.ui.user_perm2.isChecked()]
-        # print(f"user permission to door {permission}")
         new_identity["name"] = self.ui.user_name_lineEdit.text()
         new_identity["ID"] = self.ui.user_id_lineEdit.text()
         new_identity["isSupervisor"] = False
@@ -314,7 +315,6 @@ class FaceMainWindow:
             self.goHome()
             return
 
-
         new_identity["encode"] = face_encodings
 
         self.write_data(new_identity, rgb_pic)
@@ -327,22 +327,35 @@ class FaceMainWindow:
         # 檢查是否有人註冊第二次
         if rgb_small_frame is not None:
             detect_names = self.fr.recognition(rgb_small_frame)
-            print(f'{detect_names=}')
-            if not detect_names:  # 無偵測到人臉，重拍照
+
+            num_people = len(detect_names)
+            if detect_names == "EMPTY":  # 如果資料庫沒使用者，直接跳去註冊新使用者
+                pass
+            elif num_people > 1: # 偵測到超過兩個人，重新拍照
+                self.open_dialog("Multiple people detected in the frame. Please ensure there are no other individuals around and move closer.")
+                if not new_identity["isSupervisor"]:
+                    self.openCamera(self.ui.user_labelWC)
+                    self.goUser()
+                else:
+                    self.openCamera(self.ui.super_labelWC)
+                    self.goSupervisor()
+                return
+            elif num_people == 1: 
+                if detect_names[0]["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
+                    self.open_dialog("You cannot register twice using different names.")
+                    self.goHome()
+                    return
+            elif num_people == 0:  # 無偵測到人臉，重拍照
                 self.open_dialog("Detect Failed. Please Retake the photo.")
                 if not new_identity["isSupervisor"]:
                     self.openCamera(self.ui.user_labelWC)
+                    self.goUser()
                 else:
                     self.openCamera(self.ui.super_labelWC)
+                    self.goSupervisor()
                 return
-            if detect_names == "EMPTY":  # 如果資料庫沒使用者，直接跳去註冊新使用者
-                pass
-            else:
-                for detect_name in detect_names:
-                    if detect_name["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
-                        self.open_dialog("You cannot register twice using different names.")
-                        self.goHome()
-                        return
+
+
         else:
             print("rgb_small_frame is empty")
             self.open_dialog("The frame is empty.")
