@@ -189,7 +189,7 @@ class FaceMainWindow:
             self.ui.cf_labelWC.clear()  # 清除 QLabel 中的图像
             self.video_capture = None
 
-        def (self, label):
+    def takePhoto(self, label):
         if label == self.ui.user_labelWC:
             self.ui.timer_user.stop()
         elif label == self.ui.super_labelWC:
@@ -205,16 +205,26 @@ class FaceMainWindow:
             
         rgb_pic = self.to_rgb(self.frame)
         face_locations = face_recognition.face_locations(rgb_pic)
-        if not face_locations:
+        print(f"{face_locations=}")
+        num_face = len(face_locations)
+        print(f"{num_face}")
+
+        if num_face == 1:
+            self.open_dialog("Detected") 
+            return True
+        if num_face == 0:
             self.open_dialog("Detect Failed. Please retake the photo.")
-            if label == self.ui.user_labelWC:
-                self.ui.timer_user.start()
-            elif label == self.ui.super_labelWC:
-                self.ui.timer_super.start()
-            elif label == self.ui.cf_labelWC:
-                self.goConfirm()
-            return False
-        return True
+        elif num_face >= 2:
+            self.open_dialog("Multiple people detected in the frame. Please ensure there are no other individuals around and move closer.")
+
+        if label == self.ui.user_labelWC:
+            self.ui.timer_user.start()
+        elif label == self.ui.super_labelWC:
+            self.ui.timer_super.start()
+        elif label == self.ui.cf_labelWC:
+            self.goConfirm()
+        return False
+    
 
     def take_and_confirm(self):
         if self.takePhoto(self.ui.cf_labelWC) is False:
@@ -327,56 +337,31 @@ class FaceMainWindow:
         # 檢查是否有人註冊第二次
         if rgb_small_frame is not None:
             detect_names = self.fr.recognition(rgb_small_frame)
+            print(f"{detect_names=}")
 
-            num_people = len(detect_names)
-            if detect_names == "EMPTY":  # 如果資料庫沒使用者，直接跳去註冊新使用者
+            if detect_names == "EMPTY": # 資料庫中無註冊人員,可直接註冊
                 pass
-            elif num_people > 1: # 偵測到超過兩個人，重新拍照
-                self.open_dialog("Multiple people detected in the frame. Please ensure there are no other individuals around and move closer.")
-                if not new_identity["isSupervisor"]:
-                    self.openCamera(self.ui.user_labelWC)
-                    self.goUser()
-                else:
-                    self.openCamera(self.ui.super_labelWC)
-                    self.goSupervisor()
+            elif detect_names[0]["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
+                self.open_dialog("You have already registered.")
+                self.goHome()
                 return
-            elif num_people == 1: 
-                if detect_names[0]["name"] != "Unknown":  # 若讀到的臉有註冊在資料庫中，重新登錄
-                    self.open_dialog("You have already registered.")
-                    self.goHome()
-                    return
-                else:  # 註冊成功，寫入host database and csv file, 通知remote database update
-                    db.insert_data(new_identity['name'], new_identity)
-                    self.write_csv(new_identity)
             
-                    signal = SSignal('insert')
-                    signal.setParent(self.main_win)
-                    signal.start()
-            
-                    self.open_dialog(f"{new_identity['name']} Registration Completed")
-                    self.goHome()
+            # 註冊成功，寫入host database and csv file, 通知remote database update
+            db.insert_data(new_identity['name'], new_identity)
+            self.write_csv(new_identity)
+    
+            signal = SSignal('insert')
+            signal.setParent(self.main_win)
+            signal.start()
+    
+            self.open_dialog(f"{new_identity['name']} Registration Completed")
+            self.goHome()
         
-            elif num_people == 0:  # 無偵測到人臉，重拍照
-                self.open_dialog("Detect Failed. Please Retake the photo.")
-                if not new_identity["isSupervisor"]:
-                    self.openCamera(self.ui.user_labelWC)
-                    self.goUser()
-                else:
-                    self.openCamera(self.ui.super_labelWC)
-                    self.goSupervisor()
-                return
         else:
             print("rgb_small_frame is empty")
             self.open_dialog("The frame is empty.")
             self.goHome()
             return
-
-        # # if new identity has been registered, close this program.
-        # if db.read_someone_data(new_identity["name"]):
-        #     self.open_dialog("This identity has been existed or your name has been registered.")
-        #     self.goHome()
-        #     return
-        # else:
 
     def write_csv(self, new_identity):
         new_identity.pop("encode")  # remove the column of "encode"
@@ -464,7 +449,7 @@ class FaceMainWindow:
     def goConfirm(self):
         # check all the inputs be filled
         if self.ui.rm_name_lineEdit.text() == "":
-            self.open_dialog("You must fill in all input fields.")
+            self.open_dialog("You must fill in the remove_name fields.")
             return
 
         # check if database is empty

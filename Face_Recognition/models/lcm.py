@@ -8,7 +8,7 @@ from models.relay_ctl import RelayCtl
 from PyQt5.QtCore import QThread
 
 
-
+# 電閥
 class Lcm(QThread):
     def __init__(self):
         super().__init__()
